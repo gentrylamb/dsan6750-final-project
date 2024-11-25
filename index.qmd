@@ -20,4 +20,77 @@ prefer-html: true
 
 ## Introduction
 
-Several previous studies have found robust relationships between spatial properties of a country's **capital city** and that country's propensity for **conflict** and **misgovernance**.
+> In the United States, the American Indian and Alaska Native (AI/AN) population has the highest motor vehicle
+death rate, which is significantly greater than that of any other race or ethnic group. [@pollack_motor_2012]
+
+Traffic fatalities are a critical public safety concern, and understanding their spatial patterns is essential for devising targeted interventions. In Montana, a state characterized by vast rural landscapes and a significant Native American population, reservations play a crucial role in the socio-cultural and geographic fabric. Despite making up only a fraction of the state’s total area, reservations are home to unique road networks and distinct socio-economic conditions, which may influence traffic safety outcomes.
+
+Research on traffic fatalities has often revealed that crashes do not occur randomly across space but instead exhibit spatial patterns due to underlying factors such as road design, traffic density, and environmental conditions. In particular, reservations may face unique challenges, including limited road maintenance resources, longer emergency response times, and differing traffic laws, all of which could contribute to fatal crash clustering. However, the extent to which these crashes exhibit significant spatial clustering on reservations compared to other areas remains unclear.
+
+This study seeks to address this gap by examining whether fatal car crashes on Montana Reservations show significant spatial clustering relative to crashes occurring outside reservation boundaries. Using GIS and spatial data science tools, the study will analyze crash locations to test the hypothesis: 
+
+> **Fatal car crashes on Montana Reservations show significant spatial clustering compared to crashes outside reservation areas.**
+
+Through this analysis, the study aims to identify potential spatial patterns and their implications for road safety planning and resource allocation, contributing to a deeper understanding of traffic fatalities in culturally and geographically distinct areas like Montana Reservations.
+
+## Literature Review
+
+Our data is sourced from several places. The first is @msdi_tribal_nations_2021, which provided the shape files for the 7 different Montana Reservations. The second source, @nhtsa_FARS_2020_2022, was where fatal car accident data was sourced for the state of Montana. 
+
+## Methodology
+
+Moran’s I:
+Calculate the global Moran’s I statistic to determine the degree of spatial autocorrelation within and outside reservation areas.
+
+## Exploratory Data Analysis (EDA)
+
+```{r}
+#| label: imports
+library(tidyverse) |> suppressPackageStartupMessages()
+library(sf) |> suppressPackageStartupMessages()
+library(mapview) |> suppressPackageStartupMessages()
+library(units) |> suppressPackageStartupMessages()
+cb_palette <- c("#E69F00", "#56B4E9", "#009E73", "#F0E442", "#0072B2", "#D55E00", "#CC79A7")
+```
+
+```{r}
+# read in the reservation shape file, only keeping name and geometry
+rez_sf <- sf::read_sf("data/MontanaReservations_shp/MontanaReservations.shp") |> select(NAME, geometry)
+head(rez_sf)
+```
+
+```{r}
+# read in fatal accident data from each year, only keeping relevant columns
+df20 <- read.csv('./data/accident2020.csv') |> filter(STATENAME=='Montana') |> select(STATENAME, FATALS, LATITUDE, LONGITUD) |> mutate(YEAR=2020)
+df21 <- read.csv('./data/accident2021.csv') |> filter(STATENAME=='Montana') |> select(STATENAME, FATALS, LATITUDE, LONGITUD) |> mutate(YEAR=2021)
+df22 <- read.csv('./data/accident2022.csv') |> filter(STATENAME=='Montana') |> select(STATENAME, FATALS, LATITUDE, LONGITUD) |> mutate(YEAR=2022)
+# combine all years into one year
+accidents_df <- rbind(df20, df21, df22)
+head(accidents_df)
+```
+
+```{r}
+# ouput map of the reservations
+rez_map <- mapview(rez_sf, label='NAME')
+rez_map
+```
+
+
+```{r}
+accidents_sf<- sf::st_as_sf(
+    accidents_df,
+    coords = c("LONGITUD", "LATITUDE"), 
+    crs = 4326
+  )
+mapview(accidents_sf) + rez_map
+```
+
+## Hypothesis Testing (Regression)
+
+
+
+## Discussion
+
+
+
+## Conclusion
