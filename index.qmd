@@ -1,9 +1,9 @@
 ---
-title: "Coup-Proofing via Capital Relocation"
+title: "Fatal Car Accident Clusters on Montana Indian Reservations"
 subtitle: "DSAN 6750 / PPOL 6805: GIS for Spatial Data Science"
 authors:
-  - name: Jeff Jacobs
-    email: jj1088@georgetown.edu
+  - name: Gentry Lamb
+    email: gjl53@georgetown.edu
     affiliation: Georgetown University
     corresponding: true
 df-print: kable
