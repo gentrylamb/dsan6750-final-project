@@ -35,9 +35,15 @@ Through this analysis, the study aims to identify potential spatial patterns and
 
 ## Literature Review
 
-Our data is sourced from several places. The first is @msdi_tribal_nations_2021, which provided the shape files for the 7 different Montana Reservations. The second source, @nhtsa_FARS_2020_2022, was where fatal car accident data was sourced for the state of Montana. 
+
 
 ## Methodology
+
+### Data
+
+Our data is sourced from several places. The first comes from the Montana Spatial Data Infrastructure [@msdi_tribal_nations_2021], which provided the shape files for the 7 different Montana Reservations. The fatal car accident data was sourced from the National Highway Traffic Safety Administration's Fatality Analysis Reporting System [@nhtsa_FARS_2020_2022]. It provided location data and many other attributes for all fatal car accidents across the nation. 
+
+### Statistical Test
 
 Moran’s I:
 Calculate the global Moran’s I statistic to determine the degree of spatial autocorrelation within and outside reservation areas.
@@ -46,7 +52,7 @@ Calculate the global Moran’s I statistic to determine the degree of spatial au
 
 ```{r}
 #| label: imports
-library(tidyverse) |> suppressPackageStartupMessages()
+library(dplyr) |> suppressPackageStartupMessages()
 library(sf) |> suppressPackageStartupMessages()
 library(mapview) |> suppressPackageStartupMessages()
 library(units) |> suppressPackageStartupMessages()
@@ -54,9 +60,19 @@ cb_palette <- c("#E69F00", "#56B4E9", "#009E73", "#F0E442", "#0072B2", "#D55E00"
 ```
 
 ```{r}
-# read in the reservation shape file, only keeping name and geometry
-rez_sf <- sf::read_sf("data/MontanaReservations_shp/MontanaReservations.shp") |> select(NAME, geometry)
+# read in the state and reservation shape files, only keeping name and geometry
+mt_sf <- sf::read_sf("data/MontanaStateBoundary_shp/StateofMontana.shp")  |> select(NAME, geometry) |> st_transform(3857)
+rez_sf <- sf::read_sf("data/MontanaReservations_shp/MontanaReservations.shp") |> select(NAME, geometry) |> st_transform(3857)
 head(rez_sf)
+```
+
+Show Montana as a whole with the reservations overlayed
+
+```{r}
+# ouput map of the reservations
+mt_map <- mapview(mt_sf)
+rez_map <- mapview(rez_sf, label='NAME')
+mt_map + rez_map
 ```
 
 ```{r}
@@ -69,28 +85,41 @@ accidents_df <- rbind(df20, df21, df22)
 head(accidents_df)
 ```
 
-```{r}
-# ouput map of the reservations
-rez_map <- mapview(rez_sf, label='NAME')
-rez_map
-```
-
+Now we plot the fatal car accidents that occured in Montana in the years 2020-2022
 
 ```{r}
+# prepare accidents sf and show map
 accidents_sf<- sf::st_as_sf(
     accidents_df,
     coords = c("LONGITUD", "LATITUDE"), 
     crs = 4326
   )
-mapview(accidents_sf) + rez_map
+accidents_map <- mapview(accidents_sf)
+accidents_map
+```
+
+Now let's use `sf_join` to see which accidents occur within the bounds of a reservation and plot them again. 
+
+```{r}
+accidents_sf <- accidents_sf |> st_transform(3857) 
+combined_sf <- st_join(accidents_sf, rez_sf) |> mutate(
+    on_rez = (!is.na(NAME))
+)
+
+mapview(combined_sf, zcol='on_rez')
 ```
 
 ## Hypothesis Testing (Regression)
 
+```{r}
+rez_hull_sf <- rez_sf |> sf::st_convex_hull()
+mt_hull_sf <- mt_sf |> sf::st_convex_hull()
+```
 
 
 ## Discussion
 
-
-
 ## Conclusion
+
+
+## References
