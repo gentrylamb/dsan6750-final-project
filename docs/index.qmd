@@ -56,6 +56,7 @@ library(dplyr) |> suppressPackageStartupMessages()
 library(sf) |> suppressPackageStartupMessages()
 library(spatstat) |> suppressPackageStartupMessages()
 library(stars) |> suppressPackageStartupMessages()
+library(spdep) |> suppressPackageStartupMessages()
 library(mapview) |> suppressPackageStartupMessages()
 library(units) |> suppressPackageStartupMessages()
 library(ggplot2) |> suppressPackageStartupMessages()
@@ -65,6 +66,7 @@ raster_eps <- 500
 ```
 
 ```{r}
+#| label: read-in shape files
 # read in the state and reservation shape files, only keeping name and geometry
 mt_sf <- sf::read_sf("data/MontanaStateBoundary_shp/StateofMontana.shp")  |> select(NAME, geometry) |> st_transform(3857)
 rez_sf <- sf::read_sf("data/MontanaReservations_shp/MontanaReservations.shp") |> select(NAME, geometry) |> st_transform(3857)
@@ -78,7 +80,7 @@ Show Montana as a whole with the reservations overlayed
 mt_map <- mapview(mt_sf)
 rez_map <- mapview(rez_sf, label='NAME')
 # display
-# mt_map + rez_map
+mt_map + rez_map
 ```
 
 ```{r}
@@ -87,7 +89,9 @@ df20 <- read.csv('./data/accident2020.csv') |> filter(STATENAME=='Montana') |> s
 df21 <- read.csv('./data/accident2021.csv') |> filter(STATENAME=='Montana') |> select(STATENAME, FATALS, LATITUDE, LONGITUD) |> mutate(YEAR=2021)
 df22 <- read.csv('./data/accident2022.csv') |> filter(STATENAME=='Montana') |> select(STATENAME, FATALS, LATITUDE, LONGITUD) |> mutate(YEAR=2022)
 # combine all years into one year
-accidents_df <- rbind(df20, df21, df22)
+accidents_df <- rbind(df20, df21, df22) |> 
+    # drop the several outlier points
+    filter(LATITUDE < 70)
 head(accidents_df)
 ```
 
@@ -95,7 +99,7 @@ Now we plot the fatal car accidents that occured in Montana in the years 2020-20
 
 ```{r}
 # prepare accidents sf and show map
-accidents_sf<- sf::st_as_sf(
+accidents_sf <- sf::st_as_sf(
     accidents_df,
     coords = c("LONGITUD", "LATITUDE"), 
     crs = 4326
@@ -103,7 +107,7 @@ accidents_sf<- sf::st_as_sf(
 # create map boject of accidents
 accidents_map <- mapview(accidents_sf)
 # display
-# accidents_map
+accidents_map
 ```
 
 Now let's use `sf_join` to see which accidents occur within the bounds of a reservation and plot them again. This time we include the convex hull of Montana. 
@@ -119,10 +123,11 @@ accidents_sf <- accidents_sf |> st_transform(3857)
 accidents_sf <- st_join(accidents_sf, rez_sf) |> mutate(
     reservation = (!is.na(NAME))
 )
+
 # create map object of accidents
 accidents_rez_map <- mapview(accidents_sf, zcol='reservation')
 # display
-# mt_hull_map + accidents_rez_map
+mt_hull_map + accidents_rez_map
 ```
 
 ## Hypothesis Testing (Regression)
@@ -202,8 +207,6 @@ rez_points_sf |> ggplot() +
   geom_sf() +
   theme_classic() +
   scale_fill_viridis_c(option="C", na.value="transparent")
-
-ggsave('plot.png')
 ```
 
 
@@ -238,6 +241,26 @@ full_count_df |> ggplot(aes(x=Middle)) +
   geom_vline(xintercept = obs_rez_counts$Middle, linetype="dashed", color='red') +
   theme_classic()
 ```
+
+```{r}
+rez_acc_sf <- accidents_sf |> filter(reservation==TRUE)
+rez_nb <- spdep::dnearneigh(rez_acc_sf, 0, 50000)
+rez_listw <- spdep::nb2listw(rez_nb, zero.policy = TRUE)
+
+rez_moran <- spdep::moran.test(rez_acc_sf$FATALS, listw = rez_listw)
+rez_moran
+
+off_acc_sf <- accidents_sf |> filter(reservation==FALSE)
+off_nb <- spdep::dnearneigh(off_acc_sf, 0, 500000)
+off_listw <- spdep::nb2listw(off_nb, zero.policy = TRUE)
+
+off_moran <- spdep::moran.test(off_acc_sf$FATALS, listw = off_listw)
+off_moran
+```
+
+
+Morans I
+
 
 ## Discussion
 
