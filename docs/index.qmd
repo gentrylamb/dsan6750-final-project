@@ -51,7 +51,9 @@ Calculate the global Moran’s I statistic to determine the degree of spatial au
 ## Exploratory Data Analysis (EDA)
 
 ```{r}
-#| label: imports
+#| label: r-import
+
+
 library(dplyr) |> suppressPackageStartupMessages()
 library(sf) |> suppressPackageStartupMessages()
 library(spatstat) |> suppressPackageStartupMessages()
@@ -66,38 +68,57 @@ raster_eps <- 500
 ```
 
 ```{r}
-#| label: read-in shape files
+#| label: shape-file-import
+
+
 # read in the state and reservation shape files, only keeping name and geometry
-mt_sf <- sf::read_sf("data/MontanaStateBoundary_shp/StateofMontana.shp")  |> select(NAME, geometry) |> st_transform(3857)
-rez_sf <- sf::read_sf("data/MontanaReservations_shp/MontanaReservations.shp") |> select(NAME, geometry) |> st_transform(3857)
+mt_sf <- sf::read_sf("./data/MontanaStateBoundary_shp/StateofMontana.shp")  |> select(NAME, geometry) |> st_transform(3857)
+rez_sf <- sf::read_sf("./data/MontanaReservations_shp/MontanaReservations.shp") |> select(NAME, geometry) |> st_transform(3857)
 head(rez_sf)
 ```
+
 
 Show Montana as a whole with the reservations overlayed
 
 ```{r}
+#| label: mt-rez-plot
+
+
 # create mnapview objects of the state and reservations
 mt_map <- mapview(mt_sf)
-rez_map <- mapview(rez_sf, label='NAME')
+rez_map <- mapview(rez_sf, legend=FALSE, label='NAME')
 # display
 mt_map + rez_map
 ```
 
 ```{r}
+#| label: accidents-import
+
+
 # read in fatal accident data from each year, only keeping relevant columns
-df20 <- read.csv('./data/accident2020.csv') |> filter(STATENAME=='Montana') |> select(STATENAME, FATALS, LATITUDE, LONGITUD) |> mutate(YEAR=2020)
-df21 <- read.csv('./data/accident2021.csv') |> filter(STATENAME=='Montana') |> select(STATENAME, FATALS, LATITUDE, LONGITUD) |> mutate(YEAR=2021)
-df22 <- read.csv('./data/accident2022.csv') |> filter(STATENAME=='Montana') |> select(STATENAME, FATALS, LATITUDE, LONGITUD) |> mutate(YEAR=2022)
-# combine all years into one year
-accidents_df <- rbind(df20, df21, df22) |> 
-    # drop the several outlier points
-    filter(LATITUDE < 70)
+if (file.exists('./data/accidents.csv')){
+    accidents_df <- read.csv('./data/accidents.csv')
+} else {
+    df20 <- read.csv('./data/accident2020.csv') |> filter(STATENAME=='Montana') |> select(STATENAME, FATALS, LATITUDE, LONGITUD) |> mutate(YEAR=2020)
+    df21 <- read.csv('./data/accident2021.csv') |> filter(STATENAME=='Montana') |> select(STATENAME, FATALS, LATITUDE, LONGITUD) |> mutate(YEAR=2021)
+    df22 <- read.csv('./data/accident2022.csv') |> filter(STATENAME=='Montana') |> select(STATENAME, FATALS, LATITUDE, LONGITUD) |> mutate(YEAR=2022)
+    # combine all years into one year
+    accidents_df <- rbind(df20, df21, df22) |> 
+        # drop the several outlier points
+        filter(LATITUDE < 70)
+    # output to csv to make loading easier later on
+    write.csv(accidents_df, "./data/accidents.csv")
+}
+# check data
 head(accidents_df)
 ```
 
 Now we plot the fatal car accidents that occured in Montana in the years 2020-2022. 
 
 ```{r}
+#| label: accidents-plot
+
+
 # prepare accidents sf and show map
 accidents_sf <- sf::st_as_sf(
     accidents_df,
@@ -113,10 +134,18 @@ accidents_map
 Now let's use `sf_join` to see which accidents occur within the bounds of a reservation and plot them again. This time we include the convex hull of Montana. 
 
 ```{r}
+#| label: hull-calc
+
+
 # get MT convex hull
 mt_hull_sf <- mt_sf |> sf::st_convex_hull()
 # create map object
 mt_hull_map <- mapview(mt_hull_sf)
+```
+
+```{r}
+#| label: accidents-label-plot
+
 
 # add new column that indicates if the crash occured on a reservation
 accidents_sf <- accidents_sf |> st_transform(3857) 
@@ -130,10 +159,21 @@ accidents_rez_map <- mapview(accidents_sf, zcol='reservation')
 mt_hull_map + accidents_rez_map
 ```
 
+Reservations only make up 9% of Montana, but account for nearly 16% of car accidents. 
+```{r}
+#| label: rez-area-calc
+
+
+sum(st_area(rez_sf)) / st_area(mt_sf)
+mean(accidents_sf$reservation)
+```
 ## Hypothesis Testing (Regression)
 
 Make non-reservation car accidents a `ppp` object. 
 ```{r}
+#| label: non-rez-ppp-plot
+
+
 accidents_non_sfc <- accidents_sf |> filter(reservation==FALSE) |> sf::st_as_sfc()
 accidents_non_ppp <- as.ppp(accidents_non_sfc, W=as.owin(mt_hull_sf))
 
@@ -144,6 +184,9 @@ accidents_non_ppp |> sf::st_as_sf() |> ggplot() +
 
 Estimating the Population Intensity Function
 ```{r}
+#| label: non-rez-int-plot
+
+
 pop_int <- density(accidents_non_ppp, eps=raster_eps)
 
 plot(pop_int)
@@ -152,6 +195,9 @@ contour(pop_int, add=TRUE)
 
 ppp intensity overlay
 ```{r}
+#| label: non-rez-stars-plot
+
+
 pop_stars <- pop_int |> stars::st_as_stars()
 nonrez_points_sf <- accidents_non_ppp |> sf::st_as_sf() |> filter(label == "point")
 nonrez_points_sf |> ggplot() +
@@ -163,6 +209,9 @@ nonrez_points_sf |> ggplot() +
 
 population data tesselation
 ```{r}
+#| label: tess-plot
+
+
 num_regions <- 3
 region_labels <- c("Low", "Middle", "High")
 pop_vals <- pop_int
@@ -175,6 +224,9 @@ plot(pop_areas)
 
 rez accidents as point pattern
 ```{r}
+#| label: rez-ppp-plot
+
+
 accidents_rez_sfc <- accidents_sf |> filter(reservation==TRUE) |> sf::st_as_sfc()
 accidents_rez_ppp <- as.ppp(accidents_rez_sfc, W=as.owin(mt_hull_sf))
 
@@ -185,6 +237,9 @@ accidents_rez_ppp |> sf::st_as_sf() |> ggplot() +
 
 Reservation Intensity Function
 ```{r}
+#| label: rez-int-plot
+
+
 rez_int <- density(accidents_rez_ppp, eps=raster_eps)
 
 plot(rez_int)
@@ -193,6 +248,9 @@ contour(rez_int, add=TRUE)
 
 low, medium, high poulation counts
 ```{r}
+#| label: rez-obs-counts
+
+
 obs_rez_counts <- quadratcount(accidents_rez_ppp, tess=pop_areas) |> as.vector()
 names(obs_rez_counts) <- region_labels
 obs_rez_counts <- obs_rez_counts |> tibble::as_tibble_row()
@@ -200,6 +258,9 @@ obs_rez_counts <- obs_rez_counts |> tibble::as_tibble_row()
 
 Rez points on rez intensity function
 ```{r}
+#| label: rez-stars-plot
+
+
 rez_stars <- rez_int |> stars::st_as_stars()
 rez_points_sf <- accidents_rez_ppp |> sf::st_as_sf() |> filter(label == "point")
 rez_points_sf |> ggplot() +
@@ -210,9 +271,11 @@ rez_points_sf |> ggplot() +
 ```
 
 
-MOnte carlo simulation
+Monte carlo simulation
 ```{r}
-# Your code here
+#| label: monte-carlo-sim
+
+
 compute_quadrat_counts <- function(sim_ppp) {
   sim_counts <- quadratcount(sim_ppp, tess=pop_areas) |> as.vector()
   names(sim_counts) <- region_labels
@@ -235,6 +298,9 @@ names(full_count_df) <- region_labels
 
 
 ```{r}
+#| label: test-stat-plot
+
+
 mc_df <- bind_rows(full_count_df, obs_rez_counts)
 full_count_df |> ggplot(aes(x=Middle)) +
   geom_bar(stat='count') +
@@ -243,6 +309,22 @@ full_count_df |> ggplot(aes(x=Middle)) +
 ```
 
 ```{r}
+#| label: p-value
+
+
+p_val <- nrow(mc_df[mc_df$Middle >= obs_rez_counts$Middle,]) / nrow(mc_df)
+p_val
+```
+
+
+```{r}
+
+```
+
+```{r}
+#| label: morans-i
+
+
 rez_acc_sf <- accidents_sf |> filter(reservation==TRUE)
 rez_nb <- spdep::dnearneigh(rez_acc_sf, 0, 50000)
 rez_listw <- spdep::nb2listw(rez_nb, zero.policy = TRUE)
@@ -257,9 +339,6 @@ off_listw <- spdep::nb2listw(off_nb, zero.policy = TRUE)
 off_moran <- spdep::moran.test(off_acc_sf$FATALS, listw = off_listw)
 off_moran
 ```
-
-
-Morans I
 
 
 ## Discussion
