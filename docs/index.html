@@ -7,7 +7,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
 
 
-<title>Fatal Car Accident Clusters on Montana Indian Reservations</title>
+<title>Spatial Clustering of Fatal Car Accidents on Montana Indian Reservations</title>
 <style>
 code{white-space: pre-wrap;}
 span.smallcaps{font-variant: small-caps;}
@@ -92,7 +92,7 @@ background: #E69F0095;
 <link href="site_libs/mapviewCSS-0.0.1/mapview.css" rel="stylesheet">
 
 
-<meta name="citation_title" content="Fatal Car Accident Clusters on Montana Indian Reservations">
+<meta name="citation_title" content="Spatial Clustering of Fatal Car Accidents on Montana Indian Reservations">
 <meta name="citation_author" content="Gentry Lamb">
 <meta name="citation_language" content="en">
 <meta name="citation_reference" content="citation_title=Motor Vehicle Deaths Among American Indian and Alaska Native Populations;,citation_author=K. M. Pollack;,citation_author=S. Frattaroli;,citation_author=J. L. Young;,citation_author=G. Dana-Sacco;,citation_author=A. C. Gielen;,citation_publication_date=2012-01;,citation_cover_date=2012-01;,citation_year=2012;,citation_fulltext_html_url=https://academic.oup.com/epirev/article-lookup/doi/10.1093/epirev/mxr019;,citation_issue=1;,citation_doi=10.1093/epirev/mxr019;,citation_issn=0193-936X, 1478-6729;,citation_volume=34;,citation_journal_title=Epidemiologic Reviews;">
@@ -107,7 +107,7 @@ background: #E69F0095;
 <header id="title-block-header" class="quarto-title-block default toc-left page-columns page-full">
   <div class="quarto-title-banner page-columns page-full">
     <div class="quarto-title column-body">
-      <h1 class="title">Fatal Car Accident Clusters on Montana Indian Reservations</h1>
+      <h1 class="title">Spatial Clustering of Fatal Car Accidents on Montana Indian Reservations</h1>
             <p class="subtitle lead">DSAN 6750 / PPOL 6805: GIS for Spatial Data Science</p>
           </div>
 
@@ -426,7 +426,7 @@ background: #E69F0095;
 </div>
 <div class="cell">
 <div class="cell-output cell-output-stdout">
-<pre><code>[1] 0.001</code></pre>
+<pre><code>[1] 0.909</code></pre>
 </div>
 </div>
 <div class="cell">
@@ -456,6 +456,22 @@ alternative hypothesis: greater
 sample estimates:
 Moran I statistic       Expectation          Variance 
     -7.477537e-05     -2.008032e-03      5.105975e-06 </code></pre>
+</div>
+</div>
+<div class="cell">
+<div class="cell-output cell-output-stdout">
+<pre><code>Morans I for Reservations:</code></pre>
+</div>
+<div class="cell-output cell-output-stdout">
+<pre><code>Moran I statistic 
+        0.3104038 </code></pre>
+</div>
+<div class="cell-output cell-output-stdout">
+<pre><code>Morans I for Non-Reservations:</code></pre>
+</div>
+<div class="cell-output cell-output-stdout">
+<pre><code>Moran I statistic 
+        0.1084974 </code></pre>
 </div>
 </div>
 </section>
@@ -903,7 +919,7 @@ window.document.addEventListener("DOMContentLoaded", function (event) {
 });
 </script>
 </div> <!-- /content -->
-<script>var lightboxQuarto = GLightbox({"loop":false,"selector":".lightbox","descPosition":"bottom","closeEffect":"zoom","openEffect":"zoom"});
+<script>var lightboxQuarto = GLightbox({"selector":".lightbox","descPosition":"bottom","closeEffect":"zoom","loop":false,"openEffect":"zoom"});
 (function() {
   let previousOnload = window.onload;
   window.onload = () => {

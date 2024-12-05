@@ -1,5 +1,5 @@
 ---
-title: "Fatal Car Accident Clusters on Montana Indian Reservations"
+title: "Spatial Clustering of Fatal Car Accidents on Montana Indian Reservations"
 subtitle: "DSAN 6750 / PPOL 6805: GIS for Spatial Data Science"
 authors:
   - name: Gentry Lamb
@@ -174,7 +174,8 @@ Make non-reservation car accidents a `ppp` object.
 #| label: non-rez-ppp-plot
 
 
-accidents_non_sfc <- accidents_sf |> filter(reservation==FALSE) |> sf::st_as_sfc()
+accidents_non_sfc <- accidents_sf |> sf::st_as_sfc()
+# accidents_non_sfc <- accidents_sf |> filter(reservation==FALSE) |> sf::st_as_sfc()
 accidents_non_ppp <- as.ppp(accidents_non_sfc, W=as.owin(mt_hull_sf))
 
 accidents_non_ppp |> sf::st_as_sf() |> ggplot() + 
@@ -306,36 +307,57 @@ full_count_df |> ggplot(aes(x=Middle)) +
   geom_bar(stat='count') +
   geom_vline(xintercept = obs_rez_counts$Middle, linetype="dashed", color='red') +
   theme_classic()
+
+mc_df <- bind_rows(full_count_df, obs_rez_counts)
+full_count_df |> ggplot(aes(x=High)) +
+  geom_bar(stat='count') +
+  geom_vline(xintercept = obs_rez_counts$High, linetype="dashed", color='red') +
+  theme_classic()
 ```
 
 ```{r}
 #| label: p-value
 
 
-p_val <- nrow(mc_df[mc_df$Middle >= obs_rez_counts$Middle,]) / nrow(mc_df)
-p_val
+p_val_med <- nrow(mc_df[mc_df$Middle >= obs_rez_counts$Middle,]) / nrow(mc_df)
+p_val_med
+
+p_val_high <- nrow(mc_df[mc_df$High >= obs_rez_counts$High,]) / nrow(mc_df)
+p_val_high
 ```
 
 
 ```{r}
 #| label: morans-i
+grid <- sf::st_make_grid(mt_hull_sf)
 
+grid_sf <- sf::st_sf(geometry=grid)
+grid_sf <- sf::st_intersection(grid_sf, mt_hull_sf)
 
-rez_acc_sf <- accidents_sf |> filter(reservation==TRUE)
-rez_nb <- spdep::dnearneigh(rez_acc_sf, 0, 50000)
-rez_listw <- spdep::nb2listw(rez_nb, zero.policy = TRUE)
+grid_sf$on_rez <- st_intersects(grid_sf, rez_sf, sparse = FALSE) |> apply(1, any)
 
-rez_moran <- spdep::moran.test(rez_acc_sf$FATALS, listw = rez_listw)
-rez_moran
+crash_counts <- st_join(grid_sf, accidents_sf) |>
+  group_by(geometry, on_rez) |>
+  summarise(crash_count = n()) |>
+  ungroup()
 
-off_acc_sf <- accidents_sf |> filter(reservation==FALSE)
-off_nb <- spdep::dnearneigh(off_acc_sf, 0, 500000)
-off_listw <- spdep::nb2listw(off_nb, zero.policy = TRUE)
+rez_grid <- crash_counts |> filter(on_rez==TRUE)
+non_rez_grid <- crash_counts |> filter(on_rez==FALSE)
 
-off_moran <- spdep::moran.test(off_acc_sf$FATALS, listw = off_listw)
-off_moran
+rez_nb <- spdep::poly2nb(rez_grid, queen = TRUE)
+rez_listw <- spdep::nb2listw(rez_nb)
+rez_moran <- spdep::moran.test(rez_grid$crash_count, listw = rez_listw)
+
+non_rez_nb <- spdep::poly2nb(non_rez_grid, queen = TRUE)
+non_rez_listw <- spdep::nb2listw(non_rez_nb)
+non_rez_moran <- spdep::moran.test(non_rez_grid$crash_count, listw = non_rez_listw)
+
+cat('Morans I for Reservations:')
+rez_moran$estimate[1]
+
+cat('Morans I for Non-Reservations:')
+non_rez_moran$estimate[1]
 ```
-
 
 ## Discussion
 
