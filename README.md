@@ -1,13 +1,25 @@
-# PPOL 6805 / DSAN 6750 Final Project: Quarto Manuscript Template
+# PPOL 6805 / DSAN 6750 Final Project:
+## Spatial Analysis of Fatal Car Accidents in Montana
 
-1. Click the **"Use this template"** button in the upper-right, and select **"Create a new repository"**
-2. Once the new GitHub repository is created under your account, click the **"Settings"** tab at the top of the repo's GitHub page, then click **"Pages"** in the sidebar on the left of the settings panel
-3. Under the **"Branch"** heading, click the dropdown that currently contains "None", and select **main** as the branch where GitHub Pages will serve files from
-4. Instead of "/ (root)" (the default option), select **"/docs"** as the directory from which GitHub Pages should serve files from
-5. Click **"Save"**
-6. Check **"Enforce HTTPS"** (optional, but good to do)
-7. Note the **URL** that the page should now show you (it should be something like `your_username.github.io/gis-manuscript`): this is where your manuscript will be rendered to each time you push to the repository! You can change it by changing the name of your repository.
-8. Now that GH Pages is set up, you can **clone** your newly-created repository into a directory on your computer
-9. Add stuff to the Quarto Manuscript using VSCode
-10. Use the terminal/PowerShell commands `git add -A .` then `git commit -m "Your commit message here"`, then `git push` to push the changes you made in Step 10 to GitHub
-11. After ~1 min of processing time, the URL that you noted in Step 8 should update to display the newest contents of your Quarto manuscript!
+# Spatial Analysis of Fatal Car Accidents in Montana 
+
+This project investigates the spatial distribution of fatal car accidents in Montana, with a focus on comparing patterns within reservation and non-reservation areas. Using spatial data science techniques, the analysis identifies clustering patterns, tests for spatial randomness, and quantifies spatial autocorrelation to uncover insights into accident distribution.  
+
+## Key Features  
+- **Data Sources**:  
+  - Montana Reservations and state boundaries from [Montana Spatial Data Infrastructure (MSDI)](https://msl.mt.gov/geoinfo/msdi/administrative_boundaries/).  
+  - Fatal car accident data from the [Fatality Analysis Reporting System (FARS)](https://www.nhtsa.gov/crash-data-systems/fatality-analysis-reporting-system).  
+- **Exploratory Data Analysis (EDA)**: Visualizing and summarizing accident patterns across Montana.  
+- **Monte Carlo Simulation**: Testing spatial randomness of accident patterns on reservations.  
+- **Moran’s I Analysis**: Measuring spatial autocorrelation of accidents within and outside reservations.  
+- **Visualization**: Mapping accident densities, clustering patterns, and tessellations to interpret results.  
+
+## Findings  
+- Fatal car accidents exhibit significant spatial clustering on reservations.  
+- Off-reservation accident patterns are more dispersed, with weaker spatial clustering.  
+- The road system likely influences spatial patterns, suggesting the need for a refined observation window in future analyses.  
+
+## Future Work  
+- Integrate additional variables like road conditions and traffic volume.  
+- Analyze temporal trends in accident distributions.  
+- Use Montana’s road network as the primary observation window for greater precision.  
