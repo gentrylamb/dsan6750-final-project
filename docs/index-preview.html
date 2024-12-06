@@ -193,7 +193,7 @@
 
       .quarto-title-block .quarto-title-banner {
         color: black;
-background: #E69F0095;
+background: #3CD2E6;
       }
 </style>  <script src="site_libs/htmlwidgets-1.6.2/htmlwidgets.js"></script>
 <script src="site_libs/jquery-3.6.0/jquery-3.6.0.min.js"></script>
@@ -284,7 +284,11 @@ background: #E69F0095;
   <li><a href="#statistical-test" id="toc-statistical-test" class="nav-link" data-scroll-target="#statistical-test">Statistical Test</a></li>
   </ul></li>
   <li><a href="#exploratory-data-analysis-eda" id="toc-exploratory-data-analysis-eda" class="nav-link" data-scroll-target="#exploratory-data-analysis-eda">Exploratory Data Analysis (EDA)</a></li>
-  <li><a href="#hypothesis-testing-regression" id="toc-hypothesis-testing-regression" class="nav-link" data-scroll-target="#hypothesis-testing-regression">Hypothesis Testing (Regression)</a></li>
+  <li><a href="#hypothesis-testing" id="toc-hypothesis-testing" class="nav-link" data-scroll-target="#hypothesis-testing">Hypothesis Testing</a>
+  <ul class="collapse">
+  <li><a href="#reservations" id="toc-reservations" class="nav-link" data-scroll-target="#reservations">Reservations</a></li>
+  <li><a href="#non-reservations" id="toc-non-reservations" class="nav-link" data-scroll-target="#non-reservations">Non-Reservations</a></li>
+  </ul></li>
   <li><a href="#discussion" id="toc-discussion" class="nav-link" data-scroll-target="#discussion">Discussion</a></li>
   <li><a href="#conclusion" id="toc-conclusion" class="nav-link" data-scroll-target="#conclusion">Conclusion</a></li>
   <li><a href="#references" id="toc-references" class="nav-link" data-scroll-target="#references">References</a></li>
@@ -295,11 +299,11 @@ background: #E69F0095;
 </div>
 <main class="content quarto-banner-title-block" id="quarto-document-content">      
 
-       <section id="introduction" class="level2">
-<h2 class="anchored" data-anchor-id="introduction">Introduction</h2>
-<blockquote class="blockquote">
+       <blockquote class="blockquote">
 <p>In the United States, the American Indian and Alaska Native (AI/AN) population has the highest motor vehicle death rate, which is significantly greater than that of any other race or ethnic group. <span class="citation" data-cites="pollack_motor_2012">(<a href="#ref-pollack_motor_2012" role="doc-biblioref">Pollack et al. 2012</a>)</span></p>
 </blockquote>
+<section id="introduction" class="level2">
+<h2 class="anchored" data-anchor-id="introduction">Introduction</h2>
 <p>Traffic fatalities are a critical public safety concern, and understanding their spatial patterns is essential for devising targeted interventions. In Montana, a state characterized by vast rural landscapes and a significant Native American population, reservations play a crucial role in the socio-cultural and geographic fabric. Despite making up only a fraction of the state’s total area, reservations are home to unique road networks and distinct socio-economic conditions, which may influence traffic safety outcomes.</p>
 <p>Research on traffic fatalities has often revealed that crashes do not occur randomly across space but instead exhibit spatial patterns due to underlying factors such as road design, traffic density, and environmental conditions. In particular, reservations may face unique challenges, including limited road maintenance resources, longer emergency response times, and differing traffic laws, all of which could contribute to fatal crash clustering. However, the extent to which these crashes exhibit significant spatial clustering on reservations compared to other areas remains unclear.</p>
 <p>This study seeks to address this gap by examining whether fatal car crashes on Montana Reservations show significant spatial clustering relative to crashes occurring outside reservation boundaries. Using GIS and spatial data science tools, the study will analyze crash locations to test the hypothesis:</p>
@@ -310,16 +314,22 @@ background: #E69F0095;
 </section>
 <section id="literature-review" class="level2">
 <h2 class="anchored" data-anchor-id="literature-review">Literature Review</h2>
+<p>While there is a plethora of reports about traffic-related fatalities in the United States, there are far fewer analyses that perform some form of statistical research. Most publications simply provide a summary of statistics, reporting on what is observed but make no real effort at using geospatial methods to explain what is seen in the data. However, it is still important to understand the collection of literature surrounding the topic of fatal car accidents on American Indian Reservations. Thus, this section will include a written summary of published research on the subject.</p>
+<p><span class="citation" data-cites="richard_retting_analysis_2021">Richard Retting (<a href="#ref-richard_retting_analysis_2021" role="doc-biblioref">2021</a>)</span> examines racial and ethnic disparities in traffic fatalities in the U.S. from 2015 to 2019 using Fatality Analysis Reporting System (FARS) data. It highlights systemic inequities and provides actionable recommendations. The biggest takeaway, and driving factor for this study, is that American Indians and Alaskan Native populations experience the highest traffic fatality rates across all measured categories. They also conclude that historical inequalities, socioeconomic barriers, urban design, and increased exposure to dangerous road conditions all contribute to the inflated fatality rates. They conclude with recommendations for implementing equity-focused safety measures, such as targeted community education and infrastructure improvements, and reformation of traffic enforcement practices to address underlying safety disparities.</p>
+<p>The second paper focused on analyzing existing scientific literature to better understand the disparity for AI/AN individuals. Specifically, <span class="citation" data-cites="pollack_motor_2012">Pollack et al. (<a href="#ref-pollack_motor_2012" role="doc-biblioref">2012</a>)</span> searched for sources that focused on risk factors surrounding vehicle fatalities for the population of interest. In the study, the authors find that AI/AN populations face motor vehicle death rates three times higher than the general population. In addition, they discover that major contributing factors include alcohol involvement and inadequate infrastructure in the rural setting of reservations. Similar to the paper above, they conclude that education campaigns and targeted interventions are ideal solutions to the problem of fatality rates.</p>
+<p>The third source, labeled as a Research Note by the National Highway Traffic Safety Administration, sought to refine the methodology for identifying motor vehicle fatalities on Native American reservations by integrating geospatial analysis with the Fatality Analysis Reporting System (FARS) special jurisdiction coding. <span class="citation" data-cites="stewart_t_methodology_2018">Stewart, T and Longthorne, A (<a href="#ref-stewart_t_methodology_2018" role="doc-biblioref">2018</a>)</span> declares that improved fatality reporting ensures more reliable data to support targeted safety interventions for Native American communities. The proposed methodology combines FARS coding with geospatial identification to produce more accurate counts of fatalities on reservations. This methodology provides a more comprehensive framework for studying traffic safety on Native American reservations, addressing gaps in existing systems, and enhancing the accuracy of fatality data critical for public safety efforts. This study was of significant interest as it also utilized fatality data from the FARS database, aligning closely with the focus of this research. Understanding the implications of how the data is coded concerning the study helped inform how data processing would look.</p>
 </section>
 <section id="methodology" class="level2">
 <h2 class="anchored" data-anchor-id="methodology">Methodology</h2>
+<p>The methodology section outlines the datasets used in this analysis, as well as the statistical tests employed to assess spatial patterns, specifically using Moran’s I to measure spatial autocorrelation.</p>
 <section id="data" class="level3">
 <h3 class="anchored" data-anchor-id="data">Data</h3>
-<p>Our data is sourced from several places. The first comes from the Montana Spatial Data Infrastructure <span class="citation" data-cites="msdi_tribal_nations_2021">(<a href="#ref-msdi_tribal_nations_2021" role="doc-biblioref">Library 2021</a>)</span>, which provided the shape files for the 7 different Montana Reservations. The fatal car accident data was sourced from the National Highway Traffic Safety Administration’s Fatality Analysis Reporting System <span class="citation" data-cites="nhtsa_FARS_2020_2022">(<a href="#ref-nhtsa_FARS_2020_2022" role="doc-biblioref">Administration 2020-2022</a>)</span>. It provided location data and many other attributes for all fatal car accidents across the nation.</p>
+<p>The data for this study was gathered from multiple sources to analyze the spatial distribution of fatal car accidents in Montana, particularly within and outside the boundaries of Montana’s Native American Reservations.</p>
+<p>The first dataset used in this study originates from the Montana Spatial Data Infrastructure (MSDI)<span class="citation" data-cites="msdi_tribal_nations_2021">(<a href="#ref-msdi_tribal_nations_2021" role="doc-biblioref">Library 2021</a>)</span>, which provides shapefiles for the seven Montana Reservations as well as the overall state boundary. This dataset, which is publicly available and regularly updated, was used to determine reservation locations and categorize accidents. Specifically, the shapefiles allow for an accurate geographic representation of the reservations, which is crucial for identifying areas of interest for this study.</p>
+<p>The second dataset was obtained from the National Highway Traffic Safety Administration’s Fatality Analysis Reporting System (FARS) <span class="citation" data-cites="nhtsa_FARS_2020_2022">(<a href="#ref-nhtsa_FARS_2020_2022" role="doc-biblioref">Administration 2020-2022</a>)</span>, covering fatal car accidents nationwide from 2020 to 2022. FARS provides detailed records for each fatal crash, including geographic coordinates, crash circumstances, and attributes such as the time of the accident, contributing factors, and demographic information. This dataset was used to map the locations of fatal car accidents in Montana and analyze their spatial distribution in relation to the reservation boundaries.</p>
 </section>
 <section id="statistical-test" class="level3">
 <h3 class="anchored" data-anchor-id="statistical-test">Statistical Test</h3>
-<p>Moran’s I: Calculate the global Moran’s I statistic to determine the degree of spatial autocorrelation within and outside reservation areas.</p>
 </section>
 </section>
 <section id="exploratory-data-analysis-eda" class="level2">
@@ -519,25 +529,27 @@ background: #E69F0095;
 </div></div>
 <p>Reservations only make up 9% of Montana, but account for nearly 16% of car accidents.</p>
 <div class="cell-container"><div class="cell-decorator"><pre>In [8]:</pre></div><div class="cell">
-<div class="sourceCode cell-code" id="cb8"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb8-1"><a href="#cb8-1" aria-hidden="true" tabindex="-1"></a><span class="fu">sum</span>(<span class="fu">st_area</span>(rez_sf)) <span class="sc">/</span> <span class="fu">st_area</span>(mt_sf)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode cell-code" id="cb8"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb8-1"><a href="#cb8-1" aria-hidden="true" tabindex="-1"></a><span class="co"># caclualte percentage of mt that is reservation</span></span>
+<span id="cb8-2"><a href="#cb8-2" aria-hidden="true" tabindex="-1"></a><span class="fu">sum</span>(<span class="fu">st_area</span>(rez_sf)) <span class="sc">/</span> <span class="fu">st_area</span>(mt_sf)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output cell-output-stdout">
 <pre><code>0.09020196 [1]</code></pre>
 </div>
-<div class="sourceCode cell-code" id="cb10"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb10-1"><a href="#cb10-1" aria-hidden="true" tabindex="-1"></a><span class="fu">mean</span>(accidents_sf<span class="sc">$</span>reservation)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode cell-code" id="cb10"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb10-1"><a href="#cb10-1" aria-hidden="true" tabindex="-1"></a><span class="co"># calculate percentage of accidents that occur on a reservation</span></span>
+<span id="cb10-2"><a href="#cb10-2" aria-hidden="true" tabindex="-1"></a><span class="fu">mean</span>(accidents_sf<span class="sc">$</span>reservation)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output cell-output-stdout">
 <pre><code>[1] 0.1599327</code></pre>
 </div>
 </div></div>
 </section>
-<section id="hypothesis-testing-regression" class="level2">
-<h2 class="anchored" data-anchor-id="hypothesis-testing-regression">Hypothesis Testing (Regression)</h2>
+<section id="hypothesis-testing" class="level2">
+<h2 class="anchored" data-anchor-id="hypothesis-testing">Hypothesis Testing</h2>
 <p>Make non-reservation car accidents a <code>ppp</code> object.</p>
 <div class="cell-container"><div class="cell-decorator"><pre>In [9]:</pre></div><div class="cell">
-<div class="sourceCode cell-code" id="cb12"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb12-1"><a href="#cb12-1" aria-hidden="true" tabindex="-1"></a>accidents_non_sfc <span class="ot">&lt;-</span> accidents_sf <span class="sc">|&gt;</span> sf<span class="sc">::</span><span class="fu">st_as_sfc</span>()</span>
-<span id="cb12-2"><a href="#cb12-2" aria-hidden="true" tabindex="-1"></a><span class="co"># accidents_non_sfc &lt;- accidents_sf |&gt; filter(reservation==FALSE) |&gt; sf::st_as_sfc()</span></span>
-<span id="cb12-3"><a href="#cb12-3" aria-hidden="true" tabindex="-1"></a>accidents_non_ppp <span class="ot">&lt;-</span> <span class="fu">as.ppp</span>(accidents_non_sfc, <span class="at">W=</span><span class="fu">as.owin</span>(mt_hull_sf))</span>
-<span id="cb12-4"><a href="#cb12-4" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb12-5"><a href="#cb12-5" aria-hidden="true" tabindex="-1"></a>accidents_non_ppp <span class="sc">|&gt;</span> sf<span class="sc">::</span><span class="fu">st_as_sf</span>() <span class="sc">|&gt;</span> <span class="fu">ggplot</span>() <span class="sc">+</span> </span>
+<div class="sourceCode cell-code" id="cb12"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb12-1"><a href="#cb12-1" aria-hidden="true" tabindex="-1"></a><span class="co"># convert accident_sf to a ppp object so we can use it to find an intensity function later</span></span>
+<span id="cb12-2"><a href="#cb12-2" aria-hidden="true" tabindex="-1"></a>accidents_sfc <span class="ot">&lt;-</span> accidents_sf <span class="sc">|&gt;</span> sf<span class="sc">::</span><span class="fu">st_as_sfc</span>()</span>
+<span id="cb12-3"><a href="#cb12-3" aria-hidden="true" tabindex="-1"></a>accidents_ppp <span class="ot">&lt;-</span> <span class="fu">as.ppp</span>(accidents_sfc, <span class="at">W=</span><span class="fu">as.owin</span>(mt_hull_sf))</span>
+<span id="cb12-4"><a href="#cb12-4" aria-hidden="true" tabindex="-1"></a><span class="co"># plot the ppp object</span></span>
+<span id="cb12-5"><a href="#cb12-5" aria-hidden="true" tabindex="-1"></a>accidents_ppp <span class="sc">|&gt;</span> sf<span class="sc">::</span><span class="fu">st_as_sf</span>() <span class="sc">|&gt;</span> <span class="fu">ggplot</span>() <span class="sc">+</span> </span>
 <span id="cb12-6"><a href="#cb12-6" aria-hidden="true" tabindex="-1"></a>    <span class="fu">geom_sf</span>() <span class="sc">+</span></span>
 <span id="cb12-7"><a href="#cb12-7" aria-hidden="true" tabindex="-1"></a>    <span class="fu">theme_classic</span>()</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output-display">
@@ -550,10 +562,11 @@ background: #E69F0095;
 </div></div>
 <p>Estimating the Population Intensity Function</p>
 <div class="cell-container"><div class="cell-decorator"><pre>In [10]:</pre></div><div class="cell">
-<div class="sourceCode cell-code" id="cb13"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb13-1"><a href="#cb13-1" aria-hidden="true" tabindex="-1"></a>pop_int <span class="ot">&lt;-</span> <span class="fu">density</span>(accidents_non_ppp, <span class="at">eps=</span>raster_eps)</span>
-<span id="cb13-2"><a href="#cb13-2" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb13-3"><a href="#cb13-3" aria-hidden="true" tabindex="-1"></a><span class="fu">plot</span>(pop_int)</span>
-<span id="cb13-4"><a href="#cb13-4" aria-hidden="true" tabindex="-1"></a><span class="fu">contour</span>(pop_int, <span class="at">add=</span><span class="cn">TRUE</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode cell-code" id="cb13"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb13-1"><a href="#cb13-1" aria-hidden="true" tabindex="-1"></a><span class="co"># calculate density of our population of fatal car accidents</span></span>
+<span id="cb13-2"><a href="#cb13-2" aria-hidden="true" tabindex="-1"></a>pop_int <span class="ot">&lt;-</span> <span class="fu">density</span>(accidents_ppp, <span class="at">eps=</span>raster_eps)</span>
+<span id="cb13-3"><a href="#cb13-3" aria-hidden="true" tabindex="-1"></a><span class="co"># plot this density and add contour lines</span></span>
+<span id="cb13-4"><a href="#cb13-4" aria-hidden="true" tabindex="-1"></a><span class="fu">plot</span>(pop_int)</span>
+<span id="cb13-5"><a href="#cb13-5" aria-hidden="true" tabindex="-1"></a><span class="fu">contour</span>(pop_int, <span class="at">add=</span><span class="cn">TRUE</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output-display">
 <div class="">
 <figure class="figure">
@@ -564,13 +577,16 @@ background: #E69F0095;
 </div></div>
 <p>ppp intensity overlay</p>
 <div class="cell-container"><div class="cell-decorator"><pre>In [11]:</pre></div><div class="cell">
-<div class="sourceCode cell-code" id="cb14"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb14-1"><a href="#cb14-1" aria-hidden="true" tabindex="-1"></a>pop_stars <span class="ot">&lt;-</span> pop_int <span class="sc">|&gt;</span> stars<span class="sc">::</span><span class="fu">st_as_stars</span>()</span>
-<span id="cb14-2"><a href="#cb14-2" aria-hidden="true" tabindex="-1"></a>nonrez_points_sf <span class="ot">&lt;-</span> accidents_non_ppp <span class="sc">|&gt;</span> sf<span class="sc">::</span><span class="fu">st_as_sf</span>() <span class="sc">|&gt;</span> <span class="fu">filter</span>(label <span class="sc">==</span> <span class="st">"point"</span>)</span>
-<span id="cb14-3"><a href="#cb14-3" aria-hidden="true" tabindex="-1"></a>nonrez_points_sf <span class="sc">|&gt;</span> <span class="fu">ggplot</span>() <span class="sc">+</span></span>
-<span id="cb14-4"><a href="#cb14-4" aria-hidden="true" tabindex="-1"></a>  stars<span class="sc">::</span><span class="fu">geom_stars</span>(<span class="at">data=</span>pop_stars) <span class="sc">+</span></span>
-<span id="cb14-5"><a href="#cb14-5" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_sf</span>() <span class="sc">+</span></span>
-<span id="cb14-6"><a href="#cb14-6" aria-hidden="true" tabindex="-1"></a>  <span class="fu">theme_classic</span>() <span class="sc">+</span></span>
-<span id="cb14-7"><a href="#cb14-7" aria-hidden="true" tabindex="-1"></a>  <span class="fu">scale_fill_viridis_c</span>(<span class="at">option=</span><span class="st">"C"</span>, <span class="at">na.value=</span><span class="st">"transparent"</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode cell-code" id="cb14"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb14-1"><a href="#cb14-1" aria-hidden="true" tabindex="-1"></a><span class="co"># convert the density into a stars object</span></span>
+<span id="cb14-2"><a href="#cb14-2" aria-hidden="true" tabindex="-1"></a>pop_stars <span class="ot">&lt;-</span> pop_int <span class="sc">|&gt;</span> stars<span class="sc">::</span><span class="fu">st_as_stars</span>()</span>
+<span id="cb14-3"><a href="#cb14-3" aria-hidden="true" tabindex="-1"></a><span class="co"># filter the points from the ppp oject (drop the shape/window)</span></span>
+<span id="cb14-4"><a href="#cb14-4" aria-hidden="true" tabindex="-1"></a>points_sf <span class="ot">&lt;-</span> accidents_ppp <span class="sc">|&gt;</span> sf<span class="sc">::</span><span class="fu">st_as_sf</span>() <span class="sc">|&gt;</span> <span class="fu">filter</span>(label <span class="sc">==</span> <span class="st">"point"</span>)</span>
+<span id="cb14-5"><a href="#cb14-5" aria-hidden="true" tabindex="-1"></a><span class="co"># plot the points overlayed on the density calculated above </span></span>
+<span id="cb14-6"><a href="#cb14-6" aria-hidden="true" tabindex="-1"></a>points_sf <span class="sc">|&gt;</span> <span class="fu">ggplot</span>() <span class="sc">+</span></span>
+<span id="cb14-7"><a href="#cb14-7" aria-hidden="true" tabindex="-1"></a>  stars<span class="sc">::</span><span class="fu">geom_stars</span>(<span class="at">data=</span>pop_stars) <span class="sc">+</span></span>
+<span id="cb14-8"><a href="#cb14-8" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_sf</span>() <span class="sc">+</span></span>
+<span id="cb14-9"><a href="#cb14-9" aria-hidden="true" tabindex="-1"></a>  <span class="fu">theme_classic</span>() <span class="sc">+</span></span>
+<span id="cb14-10"><a href="#cb14-10" aria-hidden="true" tabindex="-1"></a>  <span class="fu">scale_fill_viridis_c</span>(<span class="at">option=</span><span class="st">"C"</span>, <span class="at">na.value=</span><span class="st">"transparent"</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output-display">
 <div class="">
 <figure class="figure">
@@ -581,13 +597,17 @@ background: #E69F0095;
 </div></div>
 <p>population data tesselation</p>
 <div class="cell-container"><div class="cell-decorator"><pre>In [12]:</pre></div><div class="cell">
-<div class="sourceCode cell-code" id="cb15"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb15-1"><a href="#cb15-1" aria-hidden="true" tabindex="-1"></a>num_regions <span class="ot">&lt;-</span> <span class="dv">3</span></span>
-<span id="cb15-2"><a href="#cb15-2" aria-hidden="true" tabindex="-1"></a>region_labels <span class="ot">&lt;-</span> <span class="fu">c</span>(<span class="st">"Low"</span>, <span class="st">"Middle"</span>, <span class="st">"High"</span>)</span>
-<span id="cb15-3"><a href="#cb15-3" aria-hidden="true" tabindex="-1"></a>pop_vals <span class="ot">&lt;-</span> pop_int</span>
-<span id="cb15-4"><a href="#cb15-4" aria-hidden="true" tabindex="-1"></a>pop_quant <span class="ot">&lt;-</span> <span class="fu">quantile</span>(pop_vals, <span class="at">probs=</span>(<span class="dv">0</span><span class="sc">:</span>num_regions) <span class="sc">/</span> num_regions, <span class="at">na.rm=</span><span class="cn">TRUE</span>)</span>
-<span id="cb15-5"><a href="#cb15-5" aria-hidden="true" tabindex="-1"></a>pop_cut <span class="ot">&lt;-</span> <span class="fu">cut</span>(pop_vals, <span class="at">breaks=</span>pop_quant, <span class="at">labels=</span>region_labels)</span>
-<span id="cb15-6"><a href="#cb15-6" aria-hidden="true" tabindex="-1"></a>pop_areas <span class="ot">&lt;-</span> <span class="fu">tess</span>(<span class="at">image=</span>pop_cut)</span>
-<span id="cb15-7"><a href="#cb15-7" aria-hidden="true" tabindex="-1"></a><span class="fu">plot</span>(pop_areas)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode cell-code" id="cb15"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb15-1"><a href="#cb15-1" aria-hidden="true" tabindex="-1"></a><span class="co"># define number of regions and labels for tesselation</span></span>
+<span id="cb15-2"><a href="#cb15-2" aria-hidden="true" tabindex="-1"></a>num_regions <span class="ot">&lt;-</span> <span class="dv">3</span></span>
+<span id="cb15-3"><a href="#cb15-3" aria-hidden="true" tabindex="-1"></a>region_labels <span class="ot">&lt;-</span> <span class="fu">c</span>(<span class="st">"Low"</span>, <span class="st">"Middle"</span>, <span class="st">"High"</span>)</span>
+<span id="cb15-4"><a href="#cb15-4" aria-hidden="true" tabindex="-1"></a><span class="co"># calculate the quantiles of the population intensity </span></span>
+<span id="cb15-5"><a href="#cb15-5" aria-hidden="true" tabindex="-1"></a>pop_quant <span class="ot">&lt;-</span> <span class="fu">quantile</span>(pop_int, <span class="at">probs=</span>(<span class="dv">0</span><span class="sc">:</span>num_regions) <span class="sc">/</span> num_regions, <span class="at">na.rm=</span><span class="cn">TRUE</span>)</span>
+<span id="cb15-6"><a href="#cb15-6" aria-hidden="true" tabindex="-1"></a><span class="co"># divide population intensity into intervals based on the quantiles above</span></span>
+<span id="cb15-7"><a href="#cb15-7" aria-hidden="true" tabindex="-1"></a>pop_cut <span class="ot">&lt;-</span> <span class="fu">cut</span>(pop_int, <span class="at">breaks=</span>pop_quant, <span class="at">labels=</span>region_labels)</span>
+<span id="cb15-8"><a href="#cb15-8" aria-hidden="true" tabindex="-1"></a><span class="co"># partition the population intensity space into subregions based on population of accidents</span></span>
+<span id="cb15-9"><a href="#cb15-9" aria-hidden="true" tabindex="-1"></a>pop_areas <span class="ot">&lt;-</span> <span class="fu">tess</span>(<span class="at">image=</span>pop_cut)</span>
+<span id="cb15-10"><a href="#cb15-10" aria-hidden="true" tabindex="-1"></a><span class="co"># plot the tesselation</span></span>
+<span id="cb15-11"><a href="#cb15-11" aria-hidden="true" tabindex="-1"></a><span class="fu">plot</span>(pop_areas)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output-display">
 <div class="">
 <figure class="figure">
@@ -598,12 +618,13 @@ background: #E69F0095;
 </div></div>
 <p>rez accidents as point pattern</p>
 <div class="cell-container"><div class="cell-decorator"><pre>In [13]:</pre></div><div class="cell">
-<div class="sourceCode cell-code" id="cb16"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb16-1"><a href="#cb16-1" aria-hidden="true" tabindex="-1"></a>accidents_rez_sfc <span class="ot">&lt;-</span> accidents_sf <span class="sc">|&gt;</span> <span class="fu">filter</span>(reservation<span class="sc">==</span><span class="cn">TRUE</span>) <span class="sc">|&gt;</span> sf<span class="sc">::</span><span class="fu">st_as_sfc</span>()</span>
-<span id="cb16-2"><a href="#cb16-2" aria-hidden="true" tabindex="-1"></a>accidents_rez_ppp <span class="ot">&lt;-</span> <span class="fu">as.ppp</span>(accidents_rez_sfc, <span class="at">W=</span><span class="fu">as.owin</span>(mt_hull_sf))</span>
-<span id="cb16-3"><a href="#cb16-3" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb16-4"><a href="#cb16-4" aria-hidden="true" tabindex="-1"></a>accidents_rez_ppp <span class="sc">|&gt;</span> sf<span class="sc">::</span><span class="fu">st_as_sf</span>() <span class="sc">|&gt;</span> <span class="fu">ggplot</span>() <span class="sc">+</span> </span>
-<span id="cb16-5"><a href="#cb16-5" aria-hidden="true" tabindex="-1"></a>    <span class="fu">geom_sf</span>() <span class="sc">+</span></span>
-<span id="cb16-6"><a href="#cb16-6" aria-hidden="true" tabindex="-1"></a>    <span class="fu">theme_classic</span>()</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode cell-code" id="cb16"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb16-1"><a href="#cb16-1" aria-hidden="true" tabindex="-1"></a><span class="co"># convert accidents on reservations to a ppp object so we can use it to find an intensity function later</span></span>
+<span id="cb16-2"><a href="#cb16-2" aria-hidden="true" tabindex="-1"></a>accidents_rez_sfc <span class="ot">&lt;-</span> accidents_sf <span class="sc">|&gt;</span> <span class="fu">filter</span>(reservation<span class="sc">==</span><span class="cn">TRUE</span>) <span class="sc">|&gt;</span> sf<span class="sc">::</span><span class="fu">st_as_sfc</span>()</span>
+<span id="cb16-3"><a href="#cb16-3" aria-hidden="true" tabindex="-1"></a>accidents_rez_ppp <span class="ot">&lt;-</span> <span class="fu">as.ppp</span>(accidents_rez_sfc, <span class="at">W=</span><span class="fu">as.owin</span>(mt_hull_sf))</span>
+<span id="cb16-4"><a href="#cb16-4" aria-hidden="true" tabindex="-1"></a><span class="co"># plot the ppp object</span></span>
+<span id="cb16-5"><a href="#cb16-5" aria-hidden="true" tabindex="-1"></a>accidents_rez_ppp <span class="sc">|&gt;</span> sf<span class="sc">::</span><span class="fu">st_as_sf</span>() <span class="sc">|&gt;</span> <span class="fu">ggplot</span>() <span class="sc">+</span> </span>
+<span id="cb16-6"><a href="#cb16-6" aria-hidden="true" tabindex="-1"></a>    <span class="fu">geom_sf</span>() <span class="sc">+</span></span>
+<span id="cb16-7"><a href="#cb16-7" aria-hidden="true" tabindex="-1"></a>    <span class="fu">theme_classic</span>()</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output-display">
 <div class="">
 <figure class="figure">
@@ -614,10 +635,11 @@ background: #E69F0095;
 </div></div>
 <p>Reservation Intensity Function</p>
 <div class="cell-container"><div class="cell-decorator"><pre>In [14]:</pre></div><div class="cell">
-<div class="sourceCode cell-code" id="cb17"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb17-1"><a href="#cb17-1" aria-hidden="true" tabindex="-1"></a>rez_int <span class="ot">&lt;-</span> <span class="fu">density</span>(accidents_rez_ppp, <span class="at">eps=</span>raster_eps)</span>
-<span id="cb17-2"><a href="#cb17-2" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb17-3"><a href="#cb17-3" aria-hidden="true" tabindex="-1"></a><span class="fu">plot</span>(rez_int)</span>
-<span id="cb17-4"><a href="#cb17-4" aria-hidden="true" tabindex="-1"></a><span class="fu">contour</span>(rez_int, <span class="at">add=</span><span class="cn">TRUE</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode cell-code" id="cb17"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb17-1"><a href="#cb17-1" aria-hidden="true" tabindex="-1"></a><span class="co"># calculate density of fatal car accidents that occured on reservations</span></span>
+<span id="cb17-2"><a href="#cb17-2" aria-hidden="true" tabindex="-1"></a>rez_int <span class="ot">&lt;-</span> <span class="fu">density</span>(accidents_rez_ppp, <span class="at">eps=</span>raster_eps)</span>
+<span id="cb17-3"><a href="#cb17-3" aria-hidden="true" tabindex="-1"></a><span class="co"># plot the intensity function and add contour lines</span></span>
+<span id="cb17-4"><a href="#cb17-4" aria-hidden="true" tabindex="-1"></a><span class="fu">plot</span>(rez_int)</span>
+<span id="cb17-5"><a href="#cb17-5" aria-hidden="true" tabindex="-1"></a><span class="fu">contour</span>(rez_int, <span class="at">add=</span><span class="cn">TRUE</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output-display">
 <div class="">
 <figure class="figure">
@@ -628,19 +650,25 @@ background: #E69F0095;
 </div></div>
 <p>low, medium, high poulation counts</p>
 <div class="cell-container"><div class="cell-decorator"><pre>In [15]:</pre></div><div class="cell">
-<div class="sourceCode cell-code" id="cb18"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb18-1"><a href="#cb18-1" aria-hidden="true" tabindex="-1"></a>obs_rez_counts <span class="ot">&lt;-</span> <span class="fu">quadratcount</span>(accidents_rez_ppp, <span class="at">tess=</span>pop_areas) <span class="sc">|&gt;</span> <span class="fu">as.vector</span>()</span>
-<span id="cb18-2"><a href="#cb18-2" aria-hidden="true" tabindex="-1"></a><span class="fu">names</span>(obs_rez_counts) <span class="ot">&lt;-</span> region_labels</span>
-<span id="cb18-3"><a href="#cb18-3" aria-hidden="true" tabindex="-1"></a>obs_rez_counts <span class="ot">&lt;-</span> obs_rez_counts <span class="sc">|&gt;</span> tibble<span class="sc">::</span><span class="fu">as_tibble_row</span>()</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode cell-code" id="cb18"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb18-1"><a href="#cb18-1" aria-hidden="true" tabindex="-1"></a><span class="co"># count the number of accidents that occured in each population region</span></span>
+<span id="cb18-2"><a href="#cb18-2" aria-hidden="true" tabindex="-1"></a>obs_rez_counts <span class="ot">&lt;-</span> <span class="fu">quadratcount</span>(accidents_rez_ppp, <span class="at">tess=</span>pop_areas) <span class="sc">|&gt;</span> <span class="fu">as.vector</span>()</span>
+<span id="cb18-3"><a href="#cb18-3" aria-hidden="true" tabindex="-1"></a><span class="co"># reassign column names to predefined labels</span></span>
+<span id="cb18-4"><a href="#cb18-4" aria-hidden="true" tabindex="-1"></a><span class="fu">names</span>(obs_rez_counts) <span class="ot">&lt;-</span> region_labels</span>
+<span id="cb18-5"><a href="#cb18-5" aria-hidden="true" tabindex="-1"></a><span class="co"># convert the list object into a data frame</span></span>
+<span id="cb18-6"><a href="#cb18-6" aria-hidden="true" tabindex="-1"></a>obs_rez_counts <span class="ot">&lt;-</span> obs_rez_counts <span class="sc">|&gt;</span> tibble<span class="sc">::</span><span class="fu">as_tibble_row</span>()</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </div></div>
 <p>Rez points on rez intensity function</p>
 <div class="cell-container"><div class="cell-decorator"><pre>In [16]:</pre></div><div class="cell">
-<div class="sourceCode cell-code" id="cb19"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb19-1"><a href="#cb19-1" aria-hidden="true" tabindex="-1"></a>rez_stars <span class="ot">&lt;-</span> rez_int <span class="sc">|&gt;</span> stars<span class="sc">::</span><span class="fu">st_as_stars</span>()</span>
-<span id="cb19-2"><a href="#cb19-2" aria-hidden="true" tabindex="-1"></a>rez_points_sf <span class="ot">&lt;-</span> accidents_rez_ppp <span class="sc">|&gt;</span> sf<span class="sc">::</span><span class="fu">st_as_sf</span>() <span class="sc">|&gt;</span> <span class="fu">filter</span>(label <span class="sc">==</span> <span class="st">"point"</span>)</span>
-<span id="cb19-3"><a href="#cb19-3" aria-hidden="true" tabindex="-1"></a>rez_points_sf <span class="sc">|&gt;</span> <span class="fu">ggplot</span>() <span class="sc">+</span></span>
-<span id="cb19-4"><a href="#cb19-4" aria-hidden="true" tabindex="-1"></a>  stars<span class="sc">::</span><span class="fu">geom_stars</span>(<span class="at">data=</span>rez_stars) <span class="sc">+</span></span>
-<span id="cb19-5"><a href="#cb19-5" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_sf</span>() <span class="sc">+</span></span>
-<span id="cb19-6"><a href="#cb19-6" aria-hidden="true" tabindex="-1"></a>  <span class="fu">theme_classic</span>() <span class="sc">+</span></span>
-<span id="cb19-7"><a href="#cb19-7" aria-hidden="true" tabindex="-1"></a>  <span class="fu">scale_fill_viridis_c</span>(<span class="at">option=</span><span class="st">"C"</span>, <span class="at">na.value=</span><span class="st">"transparent"</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode cell-code" id="cb19"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb19-1"><a href="#cb19-1" aria-hidden="true" tabindex="-1"></a><span class="co"># convert the reservation density into a stars object</span></span>
+<span id="cb19-2"><a href="#cb19-2" aria-hidden="true" tabindex="-1"></a>rez_stars <span class="ot">&lt;-</span> rez_int <span class="sc">|&gt;</span> stars<span class="sc">::</span><span class="fu">st_as_stars</span>()</span>
+<span id="cb19-3"><a href="#cb19-3" aria-hidden="true" tabindex="-1"></a><span class="co"># filter the points from the ppp oject (drop the shape/window)</span></span>
+<span id="cb19-4"><a href="#cb19-4" aria-hidden="true" tabindex="-1"></a>rez_points_sf <span class="ot">&lt;-</span> accidents_rez_ppp <span class="sc">|&gt;</span> sf<span class="sc">::</span><span class="fu">st_as_sf</span>() <span class="sc">|&gt;</span> <span class="fu">filter</span>(label <span class="sc">==</span> <span class="st">"point"</span>)</span>
+<span id="cb19-5"><a href="#cb19-5" aria-hidden="true" tabindex="-1"></a><span class="co"># plot the points overlayed on the density calculated above</span></span>
+<span id="cb19-6"><a href="#cb19-6" aria-hidden="true" tabindex="-1"></a>rez_points_sf <span class="sc">|&gt;</span> <span class="fu">ggplot</span>() <span class="sc">+</span></span>
+<span id="cb19-7"><a href="#cb19-7" aria-hidden="true" tabindex="-1"></a>  stars<span class="sc">::</span><span class="fu">geom_stars</span>(<span class="at">data=</span>rez_stars) <span class="sc">+</span></span>
+<span id="cb19-8"><a href="#cb19-8" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_sf</span>() <span class="sc">+</span></span>
+<span id="cb19-9"><a href="#cb19-9" aria-hidden="true" tabindex="-1"></a>  <span class="fu">theme_classic</span>() <span class="sc">+</span></span>
+<span id="cb19-10"><a href="#cb19-10" aria-hidden="true" tabindex="-1"></a>  <span class="fu">scale_fill_viridis_c</span>(<span class="at">option=</span><span class="st">"C"</span>, <span class="at">na.value=</span><span class="st">"transparent"</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output-display">
 <div class="">
 <figure class="figure">
@@ -651,37 +679,50 @@ background: #E69F0095;
 </div></div>
 <p>Monte carlo simulation</p>
 <div class="cell-container"><div class="cell-decorator"><pre>In [17]:</pre></div><div class="cell">
-<div class="sourceCode cell-code" id="cb20"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb20-1"><a href="#cb20-1" aria-hidden="true" tabindex="-1"></a>compute_quadrat_counts <span class="ot">&lt;-</span> <span class="cf">function</span>(sim_ppp) {</span>
-<span id="cb20-2"><a href="#cb20-2" aria-hidden="true" tabindex="-1"></a>  sim_counts <span class="ot">&lt;-</span> <span class="fu">quadratcount</span>(sim_ppp, <span class="at">tess=</span>pop_areas) <span class="sc">|&gt;</span> <span class="fu">as.vector</span>()</span>
-<span id="cb20-3"><a href="#cb20-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">names</span>(sim_counts) <span class="ot">&lt;-</span> region_labels</span>
-<span id="cb20-4"><a href="#cb20-4" aria-hidden="true" tabindex="-1"></a>  <span class="fu">return</span>(sim_counts)</span>
-<span id="cb20-5"><a href="#cb20-5" aria-hidden="true" tabindex="-1"></a>}</span>
-<span id="cb20-6"><a href="#cb20-6" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb20-7"><a href="#cb20-7" aria-hidden="true" tabindex="-1"></a>gen_sims_ppp <span class="ot">&lt;-</span> <span class="cf">function</span>(num_sims) {</span>
-<span id="cb20-8"><a href="#cb20-8" aria-hidden="true" tabindex="-1"></a>  gen_sims <span class="ot">&lt;-</span> spatstat.random<span class="sc">::</span><span class="fu">rpoint</span>(</span>
-<span id="cb20-9"><a href="#cb20-9" aria-hidden="true" tabindex="-1"></a>    <span class="at">n =</span> <span class="fu">nrow</span>(rez_points_sf),</span>
-<span id="cb20-10"><a href="#cb20-10" aria-hidden="true" tabindex="-1"></a>    <span class="at">f =</span> pop_int,</span>
-<span id="cb20-11"><a href="#cb20-11" aria-hidden="true" tabindex="-1"></a>    <span class="at">nsim =</span> num_sims</span>
-<span id="cb20-12"><a href="#cb20-12" aria-hidden="true" tabindex="-1"></a>  )</span>
-<span id="cb20-13"><a href="#cb20-13" aria-hidden="true" tabindex="-1"></a>  <span class="fu">return</span>(gen_sims)</span>
-<span id="cb20-14"><a href="#cb20-14" aria-hidden="true" tabindex="-1"></a>}</span>
-<span id="cb20-15"><a href="#cb20-15" aria-hidden="true" tabindex="-1"></a>full_sims_list <span class="ot">&lt;-</span> <span class="fu">gen_sims_ppp</span>(<span class="dv">999</span>)</span>
-<span id="cb20-16"><a href="#cb20-16" aria-hidden="true" tabindex="-1"></a>full_count_list <span class="ot">&lt;-</span> <span class="fu">lapply</span>(<span class="at">X =</span> full_sims_list, <span class="at">FUN=</span>compute_quadrat_counts)</span>
-<span id="cb20-17"><a href="#cb20-17" aria-hidden="true" tabindex="-1"></a>full_count_df <span class="ot">&lt;-</span> full_count_list <span class="sc">|&gt;</span> <span class="fu">as_tibble</span>() <span class="sc">|&gt;</span> <span class="fu">t</span>() <span class="sc">|&gt;</span> <span class="fu">as_tibble</span>(<span class="at">.name_repair=</span><span class="st">"unique"</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode cell-code" id="cb20"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb20-1"><a href="#cb20-1" aria-hidden="true" tabindex="-1"></a><span class="co"># function that takes a simulated ppp object and counts the number of </span></span>
+<span id="cb20-2"><a href="#cb20-2" aria-hidden="true" tabindex="-1"></a><span class="co"># accidents that occured in each population region</span></span>
+<span id="cb20-3"><a href="#cb20-3" aria-hidden="true" tabindex="-1"></a>compute_quadrat_counts <span class="ot">&lt;-</span> <span class="cf">function</span>(sim_ppp) {</span>
+<span id="cb20-4"><a href="#cb20-4" aria-hidden="true" tabindex="-1"></a>  sim_counts <span class="ot">&lt;-</span> <span class="fu">quadratcount</span>(sim_ppp, <span class="at">tess=</span>pop_areas) <span class="sc">|&gt;</span> <span class="fu">as.vector</span>()</span>
+<span id="cb20-5"><a href="#cb20-5" aria-hidden="true" tabindex="-1"></a>  <span class="fu">names</span>(sim_counts) <span class="ot">&lt;-</span> region_labels</span>
+<span id="cb20-6"><a href="#cb20-6" aria-hidden="true" tabindex="-1"></a>  <span class="fu">return</span>(sim_counts)</span>
+<span id="cb20-7"><a href="#cb20-7" aria-hidden="true" tabindex="-1"></a>}</span>
+<span id="cb20-8"><a href="#cb20-8" aria-hidden="true" tabindex="-1"></a><span class="co"># function that takes a number of ppp obejcts to generate and generates</span></span>
+<span id="cb20-9"><a href="#cb20-9" aria-hidden="true" tabindex="-1"></a><span class="co"># that many random ppp objects sampled from the whole distribution of </span></span>
+<span id="cb20-10"><a href="#cb20-10" aria-hidden="true" tabindex="-1"></a><span class="co"># car accidents (pop_int from above)</span></span>
+<span id="cb20-11"><a href="#cb20-11" aria-hidden="true" tabindex="-1"></a>gen_sims_ppp <span class="ot">&lt;-</span> <span class="cf">function</span>(num_sims) {</span>
+<span id="cb20-12"><a href="#cb20-12" aria-hidden="true" tabindex="-1"></a>  gen_sims <span class="ot">&lt;-</span> spatstat.random<span class="sc">::</span><span class="fu">rpoint</span>(</span>
+<span id="cb20-13"><a href="#cb20-13" aria-hidden="true" tabindex="-1"></a>    <span class="at">n =</span> <span class="fu">nrow</span>(rez_points_sf),</span>
+<span id="cb20-14"><a href="#cb20-14" aria-hidden="true" tabindex="-1"></a>    <span class="at">f =</span> pop_int,</span>
+<span id="cb20-15"><a href="#cb20-15" aria-hidden="true" tabindex="-1"></a>    <span class="at">nsim =</span> num_sims</span>
+<span id="cb20-16"><a href="#cb20-16" aria-hidden="true" tabindex="-1"></a>  )</span>
+<span id="cb20-17"><a href="#cb20-17" aria-hidden="true" tabindex="-1"></a>  <span class="fu">return</span>(gen_sims)</span>
+<span id="cb20-18"><a href="#cb20-18" aria-hidden="true" tabindex="-1"></a>}</span>
+<span id="cb20-19"><a href="#cb20-19" aria-hidden="true" tabindex="-1"></a><span class="co"># use function created above to simulate 999 ppp objects</span></span>
+<span id="cb20-20"><a href="#cb20-20" aria-hidden="true" tabindex="-1"></a>full_sims_list <span class="ot">&lt;-</span> <span class="fu">gen_sims_ppp</span>(<span class="dv">999</span>)</span>
+<span id="cb20-21"><a href="#cb20-21" aria-hidden="true" tabindex="-1"></a><span class="co"># for each of the simulated ppp objects, calculate the quadrat counts </span></span>
+<span id="cb20-22"><a href="#cb20-22" aria-hidden="true" tabindex="-1"></a>full_count_list <span class="ot">&lt;-</span> <span class="fu">lapply</span>(<span class="at">X =</span> full_sims_list, <span class="at">FUN=</span>compute_quadrat_counts)</span>
+<span id="cb20-23"><a href="#cb20-23" aria-hidden="true" tabindex="-1"></a><span class="co"># take the list object and turn it into data frame where each column represents a population region</span></span>
+<span id="cb20-24"><a href="#cb20-24" aria-hidden="true" tabindex="-1"></a><span class="co"># and each row represents on the simulated ppp object counts</span></span>
+<span id="cb20-25"><a href="#cb20-25" aria-hidden="true" tabindex="-1"></a>full_count_df <span class="ot">&lt;-</span> full_count_list <span class="sc">|&gt;</span> <span class="fu">as_tibble</span>() <span class="sc">|&gt;</span> <span class="fu">t</span>() <span class="sc">|&gt;</span> <span class="fu">as_tibble</span>(<span class="at">.name_repair=</span><span class="st">"unique"</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output cell-output-stderr">
 <pre><code>New names:
 • `` -&gt; `...1`
 • `` -&gt; `...2`
 • `` -&gt; `...3`</code></pre>
 </div>
-<div class="sourceCode cell-code" id="cb22"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb22-1"><a href="#cb22-1" aria-hidden="true" tabindex="-1"></a><span class="fu">names</span>(full_count_df) <span class="ot">&lt;-</span> region_labels</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode cell-code" id="cb22"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb22-1"><a href="#cb22-1" aria-hidden="true" tabindex="-1"></a><span class="co"># rename columns to match labels</span></span>
+<span id="cb22-2"><a href="#cb22-2" aria-hidden="true" tabindex="-1"></a><span class="fu">names</span>(full_count_df) <span class="ot">&lt;-</span> region_labels</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </div></div>
 <div class="cell-container"><div class="cell-decorator"><pre>In [18]:</pre></div><div class="cell">
-<div class="sourceCode cell-code" id="cb23"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb23-1"><a href="#cb23-1" aria-hidden="true" tabindex="-1"></a>mc_df <span class="ot">&lt;-</span> <span class="fu">bind_rows</span>(full_count_df, obs_rez_counts)</span>
-<span id="cb23-2"><a href="#cb23-2" aria-hidden="true" tabindex="-1"></a>full_count_df <span class="sc">|&gt;</span> <span class="fu">ggplot</span>(<span class="fu">aes</span>(<span class="at">x=</span>Middle)) <span class="sc">+</span></span>
-<span id="cb23-3"><a href="#cb23-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_bar</span>(<span class="at">stat=</span><span class="st">'count'</span>) <span class="sc">+</span></span>
-<span id="cb23-4"><a href="#cb23-4" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_vline</span>(<span class="at">xintercept =</span> obs_rez_counts<span class="sc">$</span>Middle, <span class="at">linetype=</span><span class="st">"dashed"</span>, <span class="at">color=</span><span class="st">'red'</span>) <span class="sc">+</span></span>
-<span id="cb23-5"><a href="#cb23-5" aria-hidden="true" tabindex="-1"></a>  <span class="fu">theme_classic</span>()</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode cell-code" id="cb23"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb23-1"><a href="#cb23-1" aria-hidden="true" tabindex="-1"></a><span class="co"># combine the count df and the observed values from the data</span></span>
+<span id="cb23-2"><a href="#cb23-2" aria-hidden="true" tabindex="-1"></a>mc_df <span class="ot">&lt;-</span> <span class="fu">bind_rows</span>(full_count_df, obs_rez_counts)</span>
+<span id="cb23-3"><a href="#cb23-3" aria-hidden="true" tabindex="-1"></a><span class="co"># plot the simulated counts for the "high" population region</span></span>
+<span id="cb23-4"><a href="#cb23-4" aria-hidden="true" tabindex="-1"></a><span class="co"># add line for the observed value in the reservation counts</span></span>
+<span id="cb23-5"><a href="#cb23-5" aria-hidden="true" tabindex="-1"></a>full_count_df <span class="sc">|&gt;</span> <span class="fu">ggplot</span>(<span class="fu">aes</span>(<span class="at">x=</span>High)) <span class="sc">+</span></span>
+<span id="cb23-6"><a href="#cb23-6" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_bar</span>(<span class="at">stat=</span><span class="st">'count'</span>) <span class="sc">+</span></span>
+<span id="cb23-7"><a href="#cb23-7" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_vline</span>(<span class="at">xintercept =</span> obs_rez_counts<span class="sc">$</span>High, <span class="at">linetype=</span><span class="st">"dashed"</span>, <span class="at">color=</span><span class="st">'red'</span>) <span class="sc">+</span></span>
+<span id="cb23-8"><a href="#cb23-8" aria-hidden="true" tabindex="-1"></a>  <span class="fu">theme_classic</span>() <span class="sc">+</span></span>
+<span id="cb23-9"><a href="#cb23-9" aria-hidden="true" tabindex="-1"></a>  <span class="fu">ggtitle</span>(<span class="st">"Simulated Counts of Accidents in a Population Region with Observed Value Overlay"</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output-display">
 <div class="">
 <figure class="figure">
@@ -691,110 +732,76 @@ background: #E69F0095;
 </div>
 </div></div>
 <div class="cell-container"><div class="cell-decorator"><pre>In [19]:</pre></div><div class="cell">
-<div class="sourceCode cell-code" id="cb24"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb24-1"><a href="#cb24-1" aria-hidden="true" tabindex="-1"></a>p_val <span class="ot">&lt;-</span> <span class="fu">nrow</span>(mc_df[mc_df<span class="sc">$</span>Middle <span class="sc">&gt;=</span> obs_rez_counts<span class="sc">$</span>Middle,]) <span class="sc">/</span> <span class="fu">nrow</span>(mc_df)</span>
-<span id="cb24-2"><a href="#cb24-2" aria-hidden="true" tabindex="-1"></a>p_val</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode cell-code" id="cb24"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb24-1"><a href="#cb24-1" aria-hidden="true" tabindex="-1"></a><span class="co"># calculate the p value by finding the proportion of simulated values in</span></span>
+<span id="cb24-2"><a href="#cb24-2" aria-hidden="true" tabindex="-1"></a><span class="co"># the "high" region that were larger than our observed value</span></span>
+<span id="cb24-3"><a href="#cb24-3" aria-hidden="true" tabindex="-1"></a>p_val_high <span class="ot">&lt;-</span> <span class="fu">nrow</span>(mc_df[mc_df<span class="sc">$</span>High <span class="sc">&gt;=</span> obs_rez_counts<span class="sc">$</span>High,]) <span class="sc">/</span> <span class="fu">nrow</span>(mc_df)</span>
+<span id="cb24-4"><a href="#cb24-4" aria-hidden="true" tabindex="-1"></a>p_val_high</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output cell-output-stdout">
-<pre><code>[1] 0.909</code></pre>
+<pre><code>[1] 0.075</code></pre>
 </div>
 </div></div>
 <div class="cell-container"><div class="cell-decorator"><pre>In [20]:</pre></div><div class="cell">
-<div class="sourceCode cell-code" id="cb26"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb26-1"><a href="#cb26-1" aria-hidden="true" tabindex="-1"></a>rez_acc_sf <span class="ot">&lt;-</span> accidents_sf <span class="sc">|&gt;</span> <span class="fu">filter</span>(reservation<span class="sc">==</span><span class="cn">TRUE</span>)</span>
-<span id="cb26-2"><a href="#cb26-2" aria-hidden="true" tabindex="-1"></a>rez_nb <span class="ot">&lt;-</span> spdep<span class="sc">::</span><span class="fu">dnearneigh</span>(rez_acc_sf, <span class="dv">0</span>, <span class="dv">50000</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
-<div class="cell-output cell-output-stderr">
-<pre><code>Warning in spdep::dnearneigh(rez_acc_sf, 0, 50000): neighbour object has 8
-sub-graphs</code></pre>
-</div>
-<div class="sourceCode cell-code" id="cb28"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb28-1"><a href="#cb28-1" aria-hidden="true" tabindex="-1"></a>rez_listw <span class="ot">&lt;-</span> spdep<span class="sc">::</span><span class="fu">nb2listw</span>(rez_nb, <span class="at">zero.policy =</span> <span class="cn">TRUE</span>)</span>
-<span id="cb28-2"><a href="#cb28-2" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb28-3"><a href="#cb28-3" aria-hidden="true" tabindex="-1"></a>rez_moran <span class="ot">&lt;-</span> spdep<span class="sc">::</span><span class="fu">moran.test</span>(rez_acc_sf<span class="sc">$</span>FATALS, <span class="at">listw =</span> rez_listw)</span>
-<span id="cb28-4"><a href="#cb28-4" aria-hidden="true" tabindex="-1"></a>rez_moran</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
-<div class="cell-output cell-output-stdout">
-<pre><code>
-    Moran I test under randomisation
-
-data:  rez_acc_sf$FATALS  
-weights: rez_listw  
-n reduced by no-neighbour observations  
-
-Moran I statistic standard deviate = -0.053729, p-value = 0.5214
-alternative hypothesis: greater
-sample estimates:
-Moran I statistic       Expectation          Variance 
-     -0.013452324      -0.010869565       0.002310775 </code></pre>
-</div>
-<div class="sourceCode cell-code" id="cb30"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb30-1"><a href="#cb30-1" aria-hidden="true" tabindex="-1"></a>off_acc_sf <span class="ot">&lt;-</span> accidents_sf <span class="sc">|&gt;</span> <span class="fu">filter</span>(reservation<span class="sc">==</span><span class="cn">FALSE</span>)</span>
-<span id="cb30-2"><a href="#cb30-2" aria-hidden="true" tabindex="-1"></a>off_nb <span class="ot">&lt;-</span> spdep<span class="sc">::</span><span class="fu">dnearneigh</span>(off_acc_sf, <span class="dv">0</span>, <span class="dv">500000</span>)</span>
-<span id="cb30-3"><a href="#cb30-3" aria-hidden="true" tabindex="-1"></a>off_listw <span class="ot">&lt;-</span> spdep<span class="sc">::</span><span class="fu">nb2listw</span>(off_nb, <span class="at">zero.policy =</span> <span class="cn">TRUE</span>)</span>
-<span id="cb30-4"><a href="#cb30-4" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb30-5"><a href="#cb30-5" aria-hidden="true" tabindex="-1"></a>off_moran <span class="ot">&lt;-</span> spdep<span class="sc">::</span><span class="fu">moran.test</span>(off_acc_sf<span class="sc">$</span>FATALS, <span class="at">listw =</span> off_listw)</span>
-<span id="cb30-6"><a href="#cb30-6" aria-hidden="true" tabindex="-1"></a>off_moran</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
-<div class="cell-output cell-output-stdout">
-<pre><code>
-    Moran I test under randomisation
-
-data:  off_acc_sf$FATALS  
-weights: off_listw    
-
-Moran I statistic standard deviate = 0.85556, p-value = 0.1961
-alternative hypothesis: greater
-sample estimates:
-Moran I statistic       Expectation          Variance 
-    -7.477537e-05     -2.008032e-03      5.105975e-06 </code></pre>
-</div>
-</div></div>
-<div class="cell-container"><div class="cell-decorator"><pre>In [21]:</pre></div><div class="cell">
-<div class="sourceCode cell-code" id="cb32"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb32-1"><a href="#cb32-1" aria-hidden="true" tabindex="-1"></a>grid <span class="ot">&lt;-</span> sf<span class="sc">::</span><span class="fu">st_make_grid</span>(mt_hull_sf)</span>
-<span id="cb32-2"><a href="#cb32-2" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb32-3"><a href="#cb32-3" aria-hidden="true" tabindex="-1"></a>grid_sf <span class="ot">&lt;-</span> sf<span class="sc">::</span><span class="fu">st_sf</span>(<span class="at">geometry=</span>grid)</span>
-<span id="cb32-4"><a href="#cb32-4" aria-hidden="true" tabindex="-1"></a>grid_sf <span class="ot">&lt;-</span> sf<span class="sc">::</span><span class="fu">st_intersection</span>(grid_sf, mt_hull_sf)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode cell-code" id="cb26"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb26-1"><a href="#cb26-1" aria-hidden="true" tabindex="-1"></a><span class="co"># create a grid over mt hull</span></span>
+<span id="cb26-2"><a href="#cb26-2" aria-hidden="true" tabindex="-1"></a>grid <span class="ot">&lt;-</span> sf<span class="sc">::</span><span class="fu">st_make_grid</span>(mt_hull_sf)</span>
+<span id="cb26-3"><a href="#cb26-3" aria-hidden="true" tabindex="-1"></a><span class="co"># convert this grid into a sf object</span></span>
+<span id="cb26-4"><a href="#cb26-4" aria-hidden="true" tabindex="-1"></a>grid_sf <span class="ot">&lt;-</span> sf<span class="sc">::</span><span class="fu">st_sf</span>(<span class="at">geometry=</span>grid)</span>
+<span id="cb26-5"><a href="#cb26-5" aria-hidden="true" tabindex="-1"></a><span class="co"># clip the sf grid to only the mt hull</span></span>
+<span id="cb26-6"><a href="#cb26-6" aria-hidden="true" tabindex="-1"></a>grid_sf <span class="ot">&lt;-</span> sf<span class="sc">::</span><span class="fu">st_intersection</span>(grid_sf, mt_hull_sf)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output cell-output-stderr">
 <pre><code>Warning: attribute variables are assumed to be spatially constant throughout
 all geometries</code></pre>
 </div>
-<div class="sourceCode cell-code" id="cb34"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb34-1"><a href="#cb34-1" aria-hidden="true" tabindex="-1"></a>grid_sf<span class="sc">$</span>on_rez <span class="ot">&lt;-</span> <span class="fu">st_intersects</span>(grid_sf, rez_sf, <span class="at">sparse =</span> <span class="cn">FALSE</span>) <span class="sc">|&gt;</span> <span class="fu">apply</span>(<span class="dv">1</span>, any)</span>
-<span id="cb34-2"><a href="#cb34-2" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb34-3"><a href="#cb34-3" aria-hidden="true" tabindex="-1"></a>crash_counts <span class="ot">&lt;-</span> <span class="fu">st_join</span>(grid_sf, accidents_sf) <span class="sc">|&gt;</span></span>
-<span id="cb34-4"><a href="#cb34-4" aria-hidden="true" tabindex="-1"></a>  <span class="fu">group_by</span>(geometry, on_rez) <span class="sc">|&gt;</span></span>
-<span id="cb34-5"><a href="#cb34-5" aria-hidden="true" tabindex="-1"></a>  <span class="fu">summarise</span>(<span class="at">crash_count =</span> <span class="fu">n</span>()) <span class="sc">|&gt;</span></span>
-<span id="cb34-6"><a href="#cb34-6" aria-hidden="true" tabindex="-1"></a>  <span class="fu">ungroup</span>()</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode cell-code" id="cb28"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb28-1"><a href="#cb28-1" aria-hidden="true" tabindex="-1"></a><span class="co"># create new column that labels grids as reservation or not</span></span>
+<span id="cb28-2"><a href="#cb28-2" aria-hidden="true" tabindex="-1"></a>grid_sf<span class="sc">$</span>on_rez <span class="ot">&lt;-</span> <span class="fu">st_intersects</span>(grid_sf, rez_sf, <span class="at">sparse =</span> <span class="cn">FALSE</span>) <span class="sc">|&gt;</span> <span class="fu">apply</span>(<span class="dv">1</span>, any)</span>
+<span id="cb28-3"><a href="#cb28-3" aria-hidden="true" tabindex="-1"></a><span class="co"># count the crashes in each grid cell</span></span>
+<span id="cb28-4"><a href="#cb28-4" aria-hidden="true" tabindex="-1"></a>crash_counts <span class="ot">&lt;-</span> <span class="fu">st_join</span>(grid_sf, accidents_sf) <span class="sc">|&gt;</span></span>
+<span id="cb28-5"><a href="#cb28-5" aria-hidden="true" tabindex="-1"></a>  <span class="fu">group_by</span>(geometry, on_rez) <span class="sc">|&gt;</span></span>
+<span id="cb28-6"><a href="#cb28-6" aria-hidden="true" tabindex="-1"></a>  <span class="fu">summarise</span>(<span class="at">crash_count =</span> <span class="fu">n</span>()) <span class="sc">|&gt;</span></span>
+<span id="cb28-7"><a href="#cb28-7" aria-hidden="true" tabindex="-1"></a>  <span class="fu">ungroup</span>()</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output cell-output-stderr">
 <pre><code>`summarise()` has grouped output by 'geometry'. You can override using the
 `.groups` argument.</code></pre>
 </div>
-<div class="sourceCode cell-code" id="cb36"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb36-1"><a href="#cb36-1" aria-hidden="true" tabindex="-1"></a>rez_grid <span class="ot">&lt;-</span> crash_counts <span class="sc">|&gt;</span> <span class="fu">filter</span>(on_rez<span class="sc">==</span><span class="cn">TRUE</span>)</span>
-<span id="cb36-2"><a href="#cb36-2" aria-hidden="true" tabindex="-1"></a>non_rez_grid <span class="ot">&lt;-</span> crash_counts <span class="sc">|&gt;</span> <span class="fu">filter</span>(on_rez<span class="sc">==</span><span class="cn">FALSE</span>)</span>
-<span id="cb36-3"><a href="#cb36-3" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb36-4"><a href="#cb36-4" aria-hidden="true" tabindex="-1"></a>rez_nb <span class="ot">&lt;-</span> spdep<span class="sc">::</span><span class="fu">poly2nb</span>(rez_grid, <span class="at">queen =</span> <span class="cn">TRUE</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode cell-code" id="cb30"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb30-1"><a href="#cb30-1" aria-hidden="true" tabindex="-1"></a><span class="co"># create seperate grids for reservation and non reservation </span></span>
+<span id="cb30-2"><a href="#cb30-2" aria-hidden="true" tabindex="-1"></a>rez_grid <span class="ot">&lt;-</span> crash_counts <span class="sc">|&gt;</span> <span class="fu">filter</span>(on_rez<span class="sc">==</span><span class="cn">TRUE</span>)</span>
+<span id="cb30-3"><a href="#cb30-3" aria-hidden="true" tabindex="-1"></a>non_rez_grid <span class="ot">&lt;-</span> crash_counts <span class="sc">|&gt;</span> <span class="fu">filter</span>(on_rez<span class="sc">==</span><span class="cn">FALSE</span>)</span>
+<span id="cb30-4"><a href="#cb30-4" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb30-5"><a href="#cb30-5" aria-hidden="true" tabindex="-1"></a><span class="co"># create a list of neighbors using queen logic</span></span>
+<span id="cb30-6"><a href="#cb30-6" aria-hidden="true" tabindex="-1"></a>rez_nb <span class="ot">&lt;-</span> spdep<span class="sc">::</span><span class="fu">poly2nb</span>(rez_grid, <span class="at">queen =</span> <span class="cn">TRUE</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output cell-output-stderr">
 <pre><code>Warning in spdep::poly2nb(rez_grid, queen = TRUE): neighbour object has 3 sub-graphs;
 if this sub-graph count seems unexpected, try increasing the snap argument.</code></pre>
 </div>
-<div class="sourceCode cell-code" id="cb38"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb38-1"><a href="#cb38-1" aria-hidden="true" tabindex="-1"></a>rez_listw <span class="ot">&lt;-</span> spdep<span class="sc">::</span><span class="fu">nb2listw</span>(rez_nb)</span>
-<span id="cb38-2"><a href="#cb38-2" aria-hidden="true" tabindex="-1"></a>rez_moran <span class="ot">&lt;-</span> spdep<span class="sc">::</span><span class="fu">moran.test</span>(rez_grid<span class="sc">$</span>crash_count, <span class="at">listw =</span> rez_listw)</span>
-<span id="cb38-3"><a href="#cb38-3" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb38-4"><a href="#cb38-4" aria-hidden="true" tabindex="-1"></a>non_rez_nb <span class="ot">&lt;-</span> spdep<span class="sc">::</span><span class="fu">poly2nb</span>(non_rez_grid, <span class="at">queen =</span> <span class="cn">TRUE</span>)</span>
-<span id="cb38-5"><a href="#cb38-5" aria-hidden="true" tabindex="-1"></a>non_rez_listw <span class="ot">&lt;-</span> spdep<span class="sc">::</span><span class="fu">nb2listw</span>(non_rez_nb)</span>
-<span id="cb38-6"><a href="#cb38-6" aria-hidden="true" tabindex="-1"></a>non_rez_moran <span class="ot">&lt;-</span> spdep<span class="sc">::</span><span class="fu">moran.test</span>(non_rez_grid<span class="sc">$</span>crash_count, <span class="at">listw =</span> non_rez_listw)</span>
-<span id="cb38-7"><a href="#cb38-7" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb38-8"><a href="#cb38-8" aria-hidden="true" tabindex="-1"></a><span class="fu">cat</span>(<span class="st">'Morans I for Reservations:'</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
-<div class="cell-output cell-output-stdout">
-<pre><code>Morans I for Reservations:</code></pre>
-</div>
-<div class="sourceCode cell-code" id="cb40"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb40-1"><a href="#cb40-1" aria-hidden="true" tabindex="-1"></a>rez_moran<span class="sc">$</span>estimate[<span class="dv">1</span>]</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode cell-code" id="cb32"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb32-1"><a href="#cb32-1" aria-hidden="true" tabindex="-1"></a><span class="co"># convert neighbors list into a spatial weights list</span></span>
+<span id="cb32-2"><a href="#cb32-2" aria-hidden="true" tabindex="-1"></a>rez_listw <span class="ot">&lt;-</span> spdep<span class="sc">::</span><span class="fu">nb2listw</span>(rez_nb)</span>
+<span id="cb32-3"><a href="#cb32-3" aria-hidden="true" tabindex="-1"></a><span class="co"># compute morans I value for the reservation grid points</span></span>
+<span id="cb32-4"><a href="#cb32-4" aria-hidden="true" tabindex="-1"></a>rez_moran <span class="ot">&lt;-</span> spdep<span class="sc">::</span><span class="fu">moran.test</span>(rez_grid<span class="sc">$</span>crash_count, <span class="at">listw =</span> rez_listw)</span>
+<span id="cb32-5"><a href="#cb32-5" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb32-6"><a href="#cb32-6" aria-hidden="true" tabindex="-1"></a><span class="co"># repeat above three steps for non rez cells</span></span>
+<span id="cb32-7"><a href="#cb32-7" aria-hidden="true" tabindex="-1"></a>non_rez_nb <span class="ot">&lt;-</span> spdep<span class="sc">::</span><span class="fu">poly2nb</span>(non_rez_grid, <span class="at">queen =</span> <span class="cn">TRUE</span>)</span>
+<span id="cb32-8"><a href="#cb32-8" aria-hidden="true" tabindex="-1"></a>non_rez_listw <span class="ot">&lt;-</span> spdep<span class="sc">::</span><span class="fu">nb2listw</span>(non_rez_nb)</span>
+<span id="cb32-9"><a href="#cb32-9" aria-hidden="true" tabindex="-1"></a>non_rez_moran <span class="ot">&lt;-</span> spdep<span class="sc">::</span><span class="fu">moran.test</span>(non_rez_grid<span class="sc">$</span>crash_count, <span class="at">listw =</span> non_rez_listw)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div></div>
+<section id="reservations" class="level3">
+<h3 class="anchored" data-anchor-id="reservations">Reservations</h3>
+<div class="cell-container"><div class="cell-decorator"><pre>In [21]:</pre></div><div class="cell">
+<div class="sourceCode cell-code" id="cb33"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb33-1"><a href="#cb33-1" aria-hidden="true" tabindex="-1"></a>rez_moran<span class="sc">$</span>estimate[<span class="dv">1</span>]</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output cell-output-stdout">
 <pre><code>Moran I statistic 
         0.3104038 </code></pre>
 </div>
-<div class="sourceCode cell-code" id="cb42"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb42-1"><a href="#cb42-1" aria-hidden="true" tabindex="-1"></a><span class="fu">cat</span>(<span class="st">'Morans I for Non-Reservations:'</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
-<div class="cell-output cell-output-stdout">
-<pre><code>Morans I for Non-Reservations:</code></pre>
-</div>
-<div class="sourceCode cell-code" id="cb44"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb44-1"><a href="#cb44-1" aria-hidden="true" tabindex="-1"></a>non_rez_moran<span class="sc">$</span>estimate[<span class="dv">1</span>]</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div></div>
+</section>
+<section id="non-reservations" class="level3">
+<h3 class="anchored" data-anchor-id="non-reservations">Non-Reservations</h3>
+<div class="cell-container"><div class="cell-decorator"><pre>In [22]:</pre></div><div class="cell">
+<div class="sourceCode cell-code" id="cb35"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb35-1"><a href="#cb35-1" aria-hidden="true" tabindex="-1"></a>non_rez_moran<span class="sc">$</span>estimate[<span class="dv">1</span>]</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output cell-output-stdout">
 <pre><code>Moran I statistic 
         0.1084974 </code></pre>
 </div>
 </div></div>
+</section>
 </section>
 <section id="discussion" class="level2">
 <h2 class="anchored" data-anchor-id="discussion">Discussion</h2>
@@ -813,6 +820,12 @@ Library, Administrative Boundaries Data Coordinator Montana State. 2021. <span>�
 </div>
 <div id="ref-pollack_motor_2012" class="csl-entry" role="listitem">
 Pollack, K. M., S. Frattaroli, J. L. Young, G. Dana-Sacco, and A. C. Gielen. 2012. <span>“Motor <span>Vehicle</span> <span>Deaths</span> <span>Among</span> <span>American</span> <span>Indian</span> and <span>Alaska</span> <span>Native</span> <span>Populations</span>.”</span> <em>Epidemiologic Reviews</em> 34 (1): 73–88. <a href="https://doi.org/10.1093/epirev/mxr019">https://doi.org/10.1093/epirev/mxr019</a>.
+</div>
+<div id="ref-richard_retting_analysis_2021" class="csl-entry" role="listitem">
+Richard Retting. 2021. <span>“An <span>Analysis</span> of <span>Traffic</span> <span>Fatalities</span> by <span>Race</span> and <span>Ethnicity</span>.”</span> Governors Highway Safety Association. <a href="https://www.ghsa.org/sites/default/files/2021-06/An%20Analysis%20of%20Traffic%20Fatalities%20by%20Race%20and%20Ethnicity_0.pdf">https://www.ghsa.org/sites/default/files/2021-06/An%20Analysis%20of%20Traffic%20Fatalities%20by%20Race%20and%20Ethnicity_0.pdf</a>.
+</div>
+<div id="ref-stewart_t_methodology_2018" class="csl-entry" role="listitem">
+Stewart, T, and Longthorne, A. 2018. <span>“Methodology on <span>Identifying</span> <span>Fatal</span> <span>Motor</span> <span>Vehicle</span> <span>Traffic</span> <span>Crashes</span> <span>That</span> <span>Occurred</span> on <span>Native</span> <span>American</span> <span>Reservations</span> <span>In</span> the <span>United</span> <span>States</span>.”</span> Research {Note} DOT HS 812 475. National Highway Traffic Safety Administration. <a href="https://crashstats.nhtsa.dot.gov/Api/Public/ViewPublication/812475">https://crashstats.nhtsa.dot.gov/Api/Public/ViewPublication/812475</a>.
 </div>
 </div>
 </section>
@@ -1236,7 +1249,7 @@ window.document.addEventListener("DOMContentLoaded", function (event) {
     }
   }
 });
-</script>  </div> <!-- /content -->  <script>var lightboxQuarto = GLightbox({"closeEffect":"zoom","loop":false,"selector":".lightbox","openEffect":"zoom","descPosition":"bottom"});
+</script>  </div> <!-- /content -->  <script>var lightboxQuarto = GLightbox({"openEffect":"zoom","selector":".lightbox","loop":false,"descPosition":"bottom","closeEffect":"zoom"});
 (function() {
   let previousOnload = window.onload;
   window.onload = () => {

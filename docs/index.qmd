@@ -8,7 +8,7 @@ authors:
     corresponding: true
 df-print: kable
 bibliography: GIS_Manuscript.bib
-title-block-banner: "#E69F0095"
+title-block-banner: "#3CD2E6"
 title-block-banner-color: "black"
 format:
   html:
@@ -18,10 +18,10 @@ format:
 prefer-html: true
 ---
 
-## Introduction
-
 > In the United States, the American Indian and Alaska Native (AI/AN) population has the highest motor vehicle
 death rate, which is significantly greater than that of any other race or ethnic group. [@pollack_motor_2012]
+
+## Introduction
 
 Traffic fatalities are a critical public safety concern, and understanding their spatial patterns is essential for devising targeted interventions. In Montana, a state characterized by vast rural landscapes and a significant Native American population, reservations play a crucial role in the socio-cultural and geographic fabric. Despite making up only a fraction of the state’s total area, reservations are home to unique road networks and distinct socio-economic conditions, which may influence traffic safety outcomes.
 
@@ -35,24 +35,34 @@ Through this analysis, the study aims to identify potential spatial patterns and
 
 ## Literature Review
 
+While there is a plethora of reports about traffic-related fatalities in the United States, there are far fewer analyses that perform some form of statistical research. Most publications simply provide a summary of statistics, reporting on what is observed but make no real effort at using geospatial methods to explain what is seen in the data. However, it is still important to understand the collection of literature surrounding the topic of fatal car accidents on American Indian Reservations. Thus, this section will include a written summary of published research on the subject. 
 
+@richard_retting_analysis_2021 examines racial and ethnic disparities in traffic fatalities in the U.S. from 2015 to 2019 using Fatality Analysis Reporting System (FARS) data. It highlights systemic inequities and provides actionable recommendations. The biggest takeaway, and driving factor for this study, is that American Indians and Alaskan Native populations experience the highest traffic fatality rates across all measured categories. They also conclude that historical inequalities, socioeconomic barriers, urban design, and increased exposure to dangerous road conditions all contribute to the inflated fatality rates. They conclude with recommendations for implementing equity-focused safety measures, such as targeted community education and infrastructure improvements, and reformation of traffic enforcement practices to address underlying safety disparities.
+ 
+The second paper focused on analyzing existing scientific literature to better understand the disparity for AI/AN individuals. Specifically, @pollack_motor_2012 searched for sources that focused on risk factors surrounding vehicle fatalities for the population of interest. In the study, the authors find that AI/AN populations face motor vehicle death rates three times higher than the general population. In addition, they discover that major contributing factors include alcohol involvement and inadequate infrastructure in the rural setting of reservations. Similar to the paper above, they conclude that education campaigns and targeted interventions are ideal solutions to the problem of fatality rates. 
+
+The third source, labeled as a Research Note by the National Highway Traffic Safety Administration, sought to refine the methodology for identifying motor vehicle fatalities on Native American reservations by integrating geospatial analysis with the Fatality Analysis Reporting System (FARS) special jurisdiction coding. @stewart_t_methodology_2018 declares that improved fatality reporting ensures more reliable data to support targeted safety interventions for Native American communities. The proposed methodology combines FARS coding with geospatial identification to produce more accurate counts of fatalities on reservations. This methodology provides a more comprehensive framework for studying traffic safety on Native American reservations, addressing gaps in existing systems, and enhancing the accuracy of fatality data critical for public safety efforts. This study was of significant interest as it also utilized fatality data from the FARS database, aligning closely with the focus of this research. Understanding the implications of how the data is coded concerning the study helped inform how data processing would look. 
 
 ## Methodology
 
+The methodology section outlines the datasets used in this analysis, as well as the statistical tests employed to assess spatial patterns, specifically using Moran’s I to measure spatial autocorrelation.
+
 ### Data
 
-Our data is sourced from several places. The first comes from the Montana Spatial Data Infrastructure [@msdi_tribal_nations_2021], which provided the shape files for the 7 different Montana Reservations. The fatal car accident data was sourced from the National Highway Traffic Safety Administration's Fatality Analysis Reporting System [@nhtsa_FARS_2020_2022]. It provided location data and many other attributes for all fatal car accidents across the nation. 
+The data for this study was gathered from multiple sources to analyze the spatial distribution of fatal car accidents in Montana, particularly within and outside the boundaries of Montana’s Native American Reservations.
+
+The first dataset used in this study originates from the Montana Spatial Data Infrastructure (MSDI)[@msdi_tribal_nations_2021], which provides shapefiles for the seven Montana Reservations as well as the overall state boundary. This dataset, which is publicly available and regularly updated, was used to determine reservation locations and categorize accidents. Specifically, the shapefiles allow for an accurate geographic representation of the reservations, which is crucial for identifying areas of interest for this study.
+
+The second dataset was obtained from the National Highway Traffic Safety Administration's Fatality Analysis Reporting System (FARS) [@nhtsa_FARS_2020_2022], covering fatal car accidents nationwide from 2020 to 2022. FARS provides detailed records for each fatal crash, including geographic coordinates, crash circumstances, and attributes such as the time of the accident, contributing factors, and demographic information. This dataset was used to map the locations of fatal car accidents in Montana and analyze their spatial distribution in relation to the reservation boundaries.
 
 ### Statistical Test
 
-Moran’s I:
-Calculate the global Moran’s I statistic to determine the degree of spatial autocorrelation within and outside reservation areas.
+
 
 ## Exploratory Data Analysis (EDA)
 
 ```{r}
 #| label: r-import
-
 
 library(dplyr) |> suppressPackageStartupMessages()
 library(sf) |> suppressPackageStartupMessages()
@@ -70,7 +80,6 @@ raster_eps <- 500
 ```{r}
 #| label: shape-file-import
 
-
 # read in the state and reservation shape files, only keeping name and geometry
 mt_sf <- sf::read_sf("./data/MontanaStateBoundary_shp/StateofMontana.shp")  |> select(NAME, geometry) |> st_transform(3857)
 rez_sf <- sf::read_sf("./data/MontanaReservations_shp/MontanaReservations.shp") |> select(NAME, geometry) |> st_transform(3857)
@@ -83,7 +92,6 @@ Show Montana as a whole with the reservations overlayed
 ```{r}
 #| label: mt-rez-plot
 
-
 # create mnapview objects of the state and reservations
 mt_map <- mapview(mt_sf)
 rez_map <- mapview(rez_sf, legend=FALSE, label='NAME')
@@ -93,7 +101,6 @@ mt_map + rez_map
 
 ```{r}
 #| label: accidents-import
-
 
 # read in fatal accident data from each year, only keeping relevant columns
 if (file.exists('./data/accidents.csv')){
@@ -118,7 +125,6 @@ Now we plot the fatal car accidents that occured in Montana in the years 2020-20
 ```{r}
 #| label: accidents-plot
 
-
 # prepare accidents sf and show map
 accidents_sf <- sf::st_as_sf(
     accidents_df,
@@ -136,7 +142,6 @@ Now let's use `sf_join` to see which accidents occur within the bounds of a rese
 ```{r}
 #| label: hull-calc
 
-
 # get MT convex hull
 mt_hull_sf <- mt_sf |> sf::st_convex_hull()
 # create map object
@@ -145,7 +150,6 @@ mt_hull_map <- mapview(mt_hull_sf)
 
 ```{r}
 #| label: accidents-label-plot
-
 
 # add new column that indicates if the crash occured on a reservation
 accidents_sf <- accidents_sf |> st_transform(3857) 
@@ -163,22 +167,24 @@ Reservations only make up 9% of Montana, but account for nearly 16% of car accid
 ```{r}
 #| label: rez-area-calc
 
-
+# caclualte percentage of mt that is reservation
 sum(st_area(rez_sf)) / st_area(mt_sf)
+# calculate percentage of accidents that occur on a reservation
 mean(accidents_sf$reservation)
 ```
-## Hypothesis Testing (Regression)
+
+
+## Hypothesis Testing
 
 Make non-reservation car accidents a `ppp` object. 
 ```{r}
 #| label: non-rez-ppp-plot
 
-
-accidents_non_sfc <- accidents_sf |> sf::st_as_sfc()
-# accidents_non_sfc <- accidents_sf |> filter(reservation==FALSE) |> sf::st_as_sfc()
-accidents_non_ppp <- as.ppp(accidents_non_sfc, W=as.owin(mt_hull_sf))
-
-accidents_non_ppp |> sf::st_as_sf() |> ggplot() + 
+# convert accident_sf to a ppp object so we can use it to find an intensity function later
+accidents_sfc <- accidents_sf |> sf::st_as_sfc()
+accidents_ppp <- as.ppp(accidents_sfc, W=as.owin(mt_hull_sf))
+# plot the ppp object
+accidents_ppp |> sf::st_as_sf() |> ggplot() + 
     geom_sf() +
     theme_classic()
 ```
@@ -187,9 +193,9 @@ Estimating the Population Intensity Function
 ```{r}
 #| label: non-rez-int-plot
 
-
-pop_int <- density(accidents_non_ppp, eps=raster_eps)
-
+# calculate density of our population of fatal car accidents
+pop_int <- density(accidents_ppp, eps=raster_eps)
+# plot this density and add contour lines
 plot(pop_int)
 contour(pop_int, add=TRUE)
 ```
@@ -198,10 +204,12 @@ ppp intensity overlay
 ```{r}
 #| label: non-rez-stars-plot
 
-
+# convert the density into a stars object
 pop_stars <- pop_int |> stars::st_as_stars()
-nonrez_points_sf <- accidents_non_ppp |> sf::st_as_sf() |> filter(label == "point")
-nonrez_points_sf |> ggplot() +
+# filter the points from the ppp oject (drop the shape/window)
+points_sf <- accidents_ppp |> sf::st_as_sf() |> filter(label == "point")
+# plot the points overlayed on the density calculated above 
+points_sf |> ggplot() +
   stars::geom_stars(data=pop_stars) +
   geom_sf() +
   theme_classic() +
@@ -212,13 +220,16 @@ population data tesselation
 ```{r}
 #| label: tess-plot
 
-
+# define number of regions and labels for tesselation
 num_regions <- 3
 region_labels <- c("Low", "Middle", "High")
-pop_vals <- pop_int
-pop_quant <- quantile(pop_vals, probs=(0:num_regions) / num_regions, na.rm=TRUE)
-pop_cut <- cut(pop_vals, breaks=pop_quant, labels=region_labels)
+# calculate the quantiles of the population intensity 
+pop_quant <- quantile(pop_int, probs=(0:num_regions) / num_regions, na.rm=TRUE)
+# divide population intensity into intervals based on the quantiles above
+pop_cut <- cut(pop_int, breaks=pop_quant, labels=region_labels)
+# partition the population intensity space into subregions based on population of accidents
 pop_areas <- tess(image=pop_cut)
+# plot the tesselation
 plot(pop_areas)
 ```
 
@@ -227,10 +238,10 @@ rez accidents as point pattern
 ```{r}
 #| label: rez-ppp-plot
 
-
+# convert accidents on reservations to a ppp object so we can use it to find an intensity function later
 accidents_rez_sfc <- accidents_sf |> filter(reservation==TRUE) |> sf::st_as_sfc()
 accidents_rez_ppp <- as.ppp(accidents_rez_sfc, W=as.owin(mt_hull_sf))
-
+# plot the ppp object
 accidents_rez_ppp |> sf::st_as_sf() |> ggplot() + 
     geom_sf() +
     theme_classic()
@@ -240,9 +251,9 @@ Reservation Intensity Function
 ```{r}
 #| label: rez-int-plot
 
-
+# calculate density of fatal car accidents that occured on reservations
 rez_int <- density(accidents_rez_ppp, eps=raster_eps)
-
+# plot the intensity function and add contour lines
 plot(rez_int)
 contour(rez_int, add=TRUE)
 ```
@@ -251,9 +262,11 @@ low, medium, high poulation counts
 ```{r}
 #| label: rez-obs-counts
 
-
+# count the number of accidents that occured in each population region
 obs_rez_counts <- quadratcount(accidents_rez_ppp, tess=pop_areas) |> as.vector()
+# reassign column names to predefined labels
 names(obs_rez_counts) <- region_labels
+# convert the list object into a data frame
 obs_rez_counts <- obs_rez_counts |> tibble::as_tibble_row()
 ```
 
@@ -261,9 +274,11 @@ Rez points on rez intensity function
 ```{r}
 #| label: rez-stars-plot
 
-
+# convert the reservation density into a stars object
 rez_stars <- rez_int |> stars::st_as_stars()
+# filter the points from the ppp oject (drop the shape/window)
 rez_points_sf <- accidents_rez_ppp |> sf::st_as_sf() |> filter(label == "point")
+# plot the points overlayed on the density calculated above
 rez_points_sf |> ggplot() +
   stars::geom_stars(data=rez_stars) +
   geom_sf() +
@@ -276,13 +291,16 @@ Monte carlo simulation
 ```{r}
 #| label: monte-carlo-sim
 
-
+# function that takes a simulated ppp object and counts the number of 
+# accidents that occured in each population region
 compute_quadrat_counts <- function(sim_ppp) {
   sim_counts <- quadratcount(sim_ppp, tess=pop_areas) |> as.vector()
   names(sim_counts) <- region_labels
   return(sim_counts)
 }
-
+# function that takes a number of ppp obejcts to generate and generates
+# that many random ppp objects sampled from the whole distribution of 
+# car accidents (pop_int from above)
 gen_sims_ppp <- function(num_sims) {
   gen_sims <- spatstat.random::rpoint(
     n = nrow(rez_points_sf),
@@ -291,9 +309,14 @@ gen_sims_ppp <- function(num_sims) {
   )
   return(gen_sims)
 }
+# use function created above to simulate 999 ppp objects
 full_sims_list <- gen_sims_ppp(999)
+# for each of the simulated ppp objects, calculate the quadrat counts 
 full_count_list <- lapply(X = full_sims_list, FUN=compute_quadrat_counts)
+# take the list object and turn it into data frame where each column represents a population region
+# and each row represents on the simulated ppp object counts
 full_count_df <- full_count_list |> as_tibble() |> t() |> as_tibble(.name_repair="unique")
+# rename columns to match labels
 names(full_count_df) <- region_labels
 ```
 
@@ -301,60 +324,77 @@ names(full_count_df) <- region_labels
 ```{r}
 #| label: test-stat-plot
 
-
+# combine the count df and the observed values from the data
 mc_df <- bind_rows(full_count_df, obs_rez_counts)
-full_count_df |> ggplot(aes(x=Middle)) +
+# plot the simulated counts for the "high" population region
+# add line for the observed value in the reservation counts
+full_count_df |> ggplot(aes(x=High)) +
   geom_bar(stat='count') +
-  geom_vline(xintercept = obs_rez_counts$Middle, linetype="dashed", color='red') +
-  theme_classic()
+  geom_vline(xintercept = obs_rez_counts$High, linetype="dashed", color='red') +
+  theme_classic() +
+  ggtitle("Simulated Counts of Accidents in a Population Region with Observed Value Overlay")
+
 ```
 
 ```{r}
 #| label: p-value
 
-
-p_val <- nrow(mc_df[mc_df$Middle >= obs_rez_counts$Middle,]) / nrow(mc_df)
-p_val
+# calculate the p value by finding the proportion of simulated values in
+# the "high" region that were larger than our observed value
+p_val_high <- nrow(mc_df[mc_df$High >= obs_rez_counts$High,]) / nrow(mc_df)
+p_val_high
 ```
 
 
 ```{r}
 #| label: morans-i
+
+# create a grid over mt hull
 grid <- sf::st_make_grid(mt_hull_sf)
-
+# convert this grid into a sf object
 grid_sf <- sf::st_sf(geometry=grid)
+# clip the sf grid to only the mt hull
 grid_sf <- sf::st_intersection(grid_sf, mt_hull_sf)
-
+# create new column that labels grids as reservation or not
 grid_sf$on_rez <- st_intersects(grid_sf, rez_sf, sparse = FALSE) |> apply(1, any)
-
+# count the crashes in each grid cell
 crash_counts <- st_join(grid_sf, accidents_sf) |>
   group_by(geometry, on_rez) |>
   summarise(crash_count = n()) |>
   ungroup()
-
+# create seperate grids for reservation and non reservation 
 rez_grid <- crash_counts |> filter(on_rez==TRUE)
 non_rez_grid <- crash_counts |> filter(on_rez==FALSE)
 
+# create a list of neighbors using queen logic
 rez_nb <- spdep::poly2nb(rez_grid, queen = TRUE)
+# convert neighbors list into a spatial weights list
 rez_listw <- spdep::nb2listw(rez_nb)
+# compute morans I value for the reservation grid points
 rez_moran <- spdep::moran.test(rez_grid$crash_count, listw = rez_listw)
 
+# repeat above three steps for non rez cells
 non_rez_nb <- spdep::poly2nb(non_rez_grid, queen = TRUE)
 non_rez_listw <- spdep::nb2listw(non_rez_nb)
 non_rez_moran <- spdep::moran.test(non_rez_grid$crash_count, listw = non_rez_listw)
+```
 
-cat('Morans I for Reservations:')
+### Reservations
+```{r}
 rez_moran$estimate[1]
-
-cat('Morans I for Non-Reservations:')
+```
+### Non-Reservations
+```{r}
 non_rez_moran$estimate[1]
 ```
 
+
 ## Discussion
+
 
 
 ## Conclusion
 
 
-## References
 
+## References
