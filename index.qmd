@@ -8,7 +8,7 @@ authors:
     corresponding: true
 df-print: kable
 bibliography: GIS_Manuscript.bib
-title-block-banner: "#3CD2E6"
+title-block-banner: "#87D7Df"
 title-block-banner-color: "black"
 format:
   html:
@@ -51,15 +51,22 @@ The methodology section outlines the datasets used in this analysis, as well as 
 
 The data for this study was gathered from multiple sources to analyze the spatial distribution of fatal car accidents in Montana, particularly within and outside the boundaries of Montana’s Native American Reservations.
 
-The first dataset used in this study originates from the Montana Spatial Data Infrastructure (MSDI)[@msdi_tribal_nations_2021], which provides shapefiles for the seven Montana Reservations as well as the overall state boundary. This dataset, which is publicly available and regularly updated, was used to determine reservation locations and categorize accidents. Specifically, the shapefiles allow for an accurate geographic representation of the reservations, which is crucial for identifying areas of interest for this study.
+The first dataset used in this study originates from the Montana Spatial Data Infrastructure (MSDI), which provides shapefiles for the seven Montana Reservations as well as the overall state boundary [@msdi_tribal_nations_2021]. This dataset, which is publicly available and regularly updated, was used to determine reservation locations and categorize accidents. Specifically, the shapefiles allow for an accurate geographic representation of the reservations, which is crucial for identifying areas of interest for this study.
 
-The second dataset was obtained from the National Highway Traffic Safety Administration's Fatality Analysis Reporting System (FARS) [@nhtsa_FARS_2020_2022], covering fatal car accidents nationwide from 2020 to 2022. FARS provides detailed records for each fatal crash, including geographic coordinates, crash circumstances, and attributes such as the time of the accident, contributing factors, and demographic information. This dataset was used to map the locations of fatal car accidents in Montana and analyze their spatial distribution in relation to the reservation boundaries.
+The second dataset was obtained from the National Highway Traffic Safety Administration's Fatality Analysis Reporting System (FARS), covering fatal car accidents nationwide from 2020 to 2022 [@nhtsa_FARS_2020_2022]. FARS provides detailed records for each fatal crash, including geographic coordinates, crash circumstances, and attributes such as the time of the accident, contributing factors, and demographic information. This dataset was used to map the locations of fatal car accidents in Montana and analyze their spatial distribution in relation to the reservation boundaries.
 
 ### Statistical Test
 
+To evaluate the spatial distribution of fatal car accidents in Montana, we first assessed the spatial randomness of accident locations using Monte Carlo simulations. This approach was used to determine whether the observed distribution of fatal accidents on reservations was statistically different from what would be expected under spatial randomness. By simulating random point distributions within the study area and comparing the resulting patterns to the observed accident locations, we established a baseline of spatial randomness. If the observed distribution deviated significantly from this randomized pattern, it would indicate spatial clustering or dispersion.
+
+Following this initial step, we calculated the global Moran’s I statistic to quantify the degree of spatial autocorrelation of fatal accidents both inside and outside reservation areas. Moran’s I is a measure of spatial autocorrelation that indicates whether nearby locations tend to have similar values (clustering) or dissimilar values (dispersion). A positive Moran’s I value suggests that similar values (such as the number of accidents) are spatially clustered, while a negative value indicates that dissimilar values are dispersed.
+
+To perform the analysis, Montana was divided into a regular grid, and the number of fatal accidents within each grid cell was counted. Moran’s I was then calculated separately for areas within the reservation boundaries and for the non-reservation areas. This allowed for a comparison of spatial patterns between the two regions and helped identify any significant differences in how accidents are distributed across the state.
 
 
 ## Exploratory Data Analysis (EDA)
+
+Exploratory Data Analysis (EDA) examines the spatial distribution of fatal car accidents in Montana, focusing on patterns within and outside of reservation boundaries. Through visualizations and descriptive summaries, this section provides insights into the geographic and contextual characteristics of the data.
 
 ```{r}
 #| label: r-import
@@ -77,17 +84,19 @@ set.seed(6750)
 raster_eps <- 500
 ```
 
+The first step is to load in the shapefiles, sourced from @msdi_tribal_nations_2021. All unnecessary columns are dropped, keeping only the name and geometry attributes,
+
 ```{r}
 #| label: shape-file-import
 
 # read in the state and reservation shape files, only keeping name and geometry
 mt_sf <- sf::read_sf("./data/MontanaStateBoundary_shp/StateofMontana.shp")  |> select(NAME, geometry) |> st_transform(3857)
 rez_sf <- sf::read_sf("./data/MontanaReservations_shp/MontanaReservations.shp") |> select(NAME, geometry) |> st_transform(3857)
+head(mt_sf)
 head(rez_sf)
 ```
 
-
-Show Montana as a whole with the reservations overlayed
+Here, the `mapview` library is used plot the state of Montana with the tribal reservations overlayed. Montana itself is a very sparsely populated state and while it may not be obvious by this visualization, the reservations exist in some of the most rural areas of the state, away from any large popualtion centers.
 
 ```{r}
 #| label: mt-rez-plot
@@ -98,6 +107,12 @@ rez_map <- mapview(rez_sf, legend=FALSE, label='NAME')
 # display
 mt_map + rez_map
 ```
+
+The below image displays a view of the early Indian territories in Montana and what tribes existed. While it is not necessarily relevant to this study, it is important in the broader scope of understanding American Indian heritage in Montana and where they are confided to in present day. 
+
+![Tribal Areas in MT](https://en.wikipedia.org/wiki/File:Early_Indian_territories_in_Montana_by_treaty.png)
+
+Now the accident data from @nhtsa_FARS_2020_2022 is read in, again removing extraneous columns and keeping only those relevant to the analysis. Remember that data was sampled from the years 2020-2022, in which there were **594** accidents in the state of Montana. Instead of `sf` geometries, as provided in the shape files, this data is given with latitude and longitude. Fortunately, `sf` has a function (`st_as_sf`) that can easily convert these into geometries that are better suited to work with `sf`.
 
 ```{r}
 #| label: accidents-import
@@ -120,7 +135,7 @@ if (file.exists('./data/accidents.csv')){
 head(accidents_df)
 ```
 
-Now we plot the fatal car accidents that occured in Montana in the years 2020-2022. 
+Let's plot these fatal car accidents. Note that since it is nationwide data, filtering was done to include only accidents that occurred in Montana. There is some notable clustering in Western Montana, which makes sense as that is where the population is concentrated, meaning there is likely more roads and traffic. 
 
 ```{r}
 #| label: accidents-plot
@@ -137,19 +152,15 @@ accidents_map <- mapview(accidents_sf)
 accidents_map
 ```
 
-Now let's use `sf_join` to see which accidents occur within the bounds of a reservation and plot them again. This time we include the convex hull of Montana. 
+Conducting a spatial join of the reservations and accidents makes it possible to label the points on the basis of if they happened within the bounds of a reservation or not. In the plot below, yellow points represent fatal car accidents that occur on a reservation. Also note the shape of Montana appears to have changed some. This new shape defines the minimum area encompassing all points in the states outline, effectively creating a boundary around the cluster of data points. This provides a much simpler representation of the state and will be used later as the observation window for density analysis.
 
 ```{r}
-#| label: hull-calc
+#| label: accidents-label-plot
 
 # get MT convex hull
 mt_hull_sf <- mt_sf |> sf::st_convex_hull()
 # create map object
 mt_hull_map <- mapview(mt_hull_sf)
-```
-
-```{r}
-#| label: accidents-label-plot
 
 # add new column that indicates if the crash occured on a reservation
 accidents_sf <- accidents_sf |> st_transform(3857) 
@@ -163,20 +174,32 @@ accidents_rez_map <- mapview(accidents_sf, zcol='reservation')
 mt_hull_map + accidents_rez_map
 ```
 
-Reservations only make up 9% of Montana, but account for nearly 16% of car accidents. 
+It seems like there is a lot of yellow points for areas that make up such a small part of Montana, especially since they are in rural areas. It is calculated that reservations only make up 9% of Montana, but account for nearly 16% of car accidents.
+
 ```{r}
 #| label: rez-area-calc
 
 # caclualte percentage of mt that is reservation
-sum(st_area(rez_sf)) / st_area(mt_sf)
+rez_area_prop <- sum(st_area(rez_sf)) / st_area(mt_sf)
+paste(c('Percentage of Area:', rez_area_prop))
 # calculate percentage of accidents that occur on a reservation
-mean(accidents_sf$reservation)
+rez_acc_prop <- mean(accidents_sf$reservation)
+paste(c('Percentage of Accidents:', rez_acc_prop))
+
 ```
 
+This initial analysis and visualization suggests that there may be some potential spatial clustering or autocorrelation to uncover. While the visual patterns observed provide important context, they are insufficient to establish whether these differences are statistically meaningful. To deepen understanding and test for statistical significance, hypothesis testing is necessary. 
 
 ## Hypothesis Testing
 
-Make non-reservation car accidents a `ppp` object. 
+To assess the spatial patterns observed in the exploratory analysis, hypothesis testing is implemented to evaluate the distribution of fatal car accidents in Montana. The first step involves testing for spatial randomness on reservations using Monte Carlo simulations, providing a baseline for determining whether the observed patterns deviate from what would be expected under a random spatial process. Following this, Moran’s I is calculated to quantify the degree of spatial autocorrelation within reservation and non-reservation areas, allowing for a direct comparison of spatial clustering across these regions. Together, these tests offer a basis for understanding the underlying spatial processes governing the distribution of fatal accidents. As a reminder from the introduction, the hypothesis for this analysis is:
+
+> **Fatal car crashes on Montana Reservations show significant spatial clustering compared to crashes outside reservation areas.**
+
+### Monte Carlo Simulation
+
+First, the accidents `sf` object is converted into a spatial point pattern (`ppp`) object. This should very closely resemble maps from above as it is exactly the same, just formatted differently.
+
 ```{r}
 #| label: non-rez-ppp-plot
 
@@ -189,7 +212,8 @@ accidents_ppp |> sf::st_as_sf() |> ggplot() +
     theme_classic()
 ```
 
-Estimating the Population Intensity Function
+Here, the point pattern object of accident locations is used to generate a density estimate, providing a smoothed representation of accident intensity across the landscape. The map highlights areas with higher concentrations of accidents, which are overlaid with contour lines for clarity. This identifies hotspots and is used later in analysis for the Monte Carlo simulation. 
+
 ```{r}
 #| label: non-rez-int-plot
 
@@ -200,7 +224,8 @@ plot(pop_int)
 contour(pop_int, add=TRUE)
 ```
 
-ppp intensity overlay
+With the `stars` package, the intensity function can be combined with other geospatial data, such as the accident locations. The resulting visualization combines the density estimates with the actual accident locations, offering a clear and intuitive representation of where accidents are concentrated relative to their raw spatial occurrences.
+
 ```{r}
 #| label: non-rez-stars-plot
 
@@ -216,13 +241,14 @@ points_sf |> ggplot() +
   scale_fill_viridis_c(option="C", na.value="transparent")
 ```
 
-population data tesselation
+The map below displays the population distribution of accidents in three categories - "Low," "Medium," and "High". This is performed by tessellating the density object from above using intensity quantiles. The process segments the spatial landscape into regions with distinct levels of accident intensity. Not only does the resulting plot provides a clear visual delineation of these intensity regions, it serves as a basis for comparative spatial analysis. Later, it will be used to compute the observed counts of reservation accidents falling into each category.
+
 ```{r}
 #| label: tess-plot
 
 # define number of regions and labels for tesselation
 num_regions <- 3
-region_labels <- c("Low", "Middle", "High")
+region_labels <- c("Low", "Medium", "High")
 # calculate the quantiles of the population intensity 
 pop_quant <- quantile(pop_int, probs=(0:num_regions) / num_regions, na.rm=TRUE)
 # divide population intensity into intervals based on the quantiles above
@@ -233,8 +259,8 @@ pop_areas <- tess(image=pop_cut)
 plot(pop_areas)
 ```
 
+Similar to the first step in this section, the accident data is converted into a spatial point pattern (`ppp`) object. This time it is exclusively the accidents that occurred within a reservation.
 
-rez accidents as point pattern
 ```{r}
 #| label: rez-ppp-plot
 
@@ -247,7 +273,8 @@ accidents_rez_ppp |> sf::st_as_sf() |> ggplot() +
     theme_classic()
 ```
 
-Reservation Intensity Function
+The next two plots follow the steps from above where density was calculated and plotted with contour lines. Then `stars` was used to overlay the accidents on the density plot. Both of these represent only the accidents that happened within the bounds of a reservation. 
+
 ```{r}
 #| label: rez-int-plot
 
@@ -258,20 +285,6 @@ plot(rez_int)
 contour(rez_int, add=TRUE)
 ```
 
-low, medium, high poulation counts
-```{r}
-#| label: rez-obs-counts
-
-# count the number of accidents that occured in each population region
-obs_rez_counts <- quadratcount(accidents_rez_ppp, tess=pop_areas) |> as.vector()
-# reassign column names to predefined labels
-names(obs_rez_counts) <- region_labels
-# convert the list object into a data frame
-obs_rez_counts <- obs_rez_counts |> tibble::as_tibble_row()
-obs_rez_counts
-```
-
-Rez points on rez intensity function
 ```{r}
 #| label: rez-stars-plot
 
@@ -287,8 +300,24 @@ rez_points_sf |> ggplot() +
   scale_fill_viridis_c(option="C", na.value="transparent")
 ```
 
+As a final step before simulation, the observed test statistic must be computed. The `quadratcount` function is used to calculate the number of fatal car accidents occurring within each population intensity region ("Low," "Medium," and "High") defined by the tessellation. The output is converted into a tidy data frame with the counts labeled according to their respective intensity categories. This tabular representation provides a clear summary of how accidents are distributed across regions with varying population intensities, and serve as the test statistic for the hypothesis test.
 
-Monte carlo simulation
+```{r}
+#| label: rez-obs-counts
+
+# count the number of accidents that occured in each population region
+obs_rez_counts <- quadratcount(accidents_rez_ppp, tess=pop_areas) |> as.vector()
+# reassign column names to predefined labels
+names(obs_rez_counts) <- region_labels
+# convert the list object into a data frame
+obs_rez_counts <- obs_rez_counts |> tibble::as_tibble_row()
+obs_rez_counts
+```
+
+Finally, Monte Carlo simulation can utilized to assess the spatial randomness of the fatal car accidents. This is where the full population intensity function from before comes into play. First, 999 simulated point patterns are created, each of which are the same size as the observed point pattern and are drawn from the probability density of the population of all car accidents. This means that each of these point patterns are representative of the population of interest. Next, quadrat counts are computed for each of point patterns, so the result is a data frame with 999 rows and 3 columns, which represent the counts of accidents that fall within the three intensity categories. 
+
+The plot below shows the distribution of the "High" population category across all the simulations. Superimposed as a red dashed line is the observed value. In the original data, around 66 of accidents that occurred on a reservation fell within a "High" accident area. Visually, this is quite a bit higher than what occurs in the simulated data. It appears that fatal accidents on reservations is disproportionately higher than what should be expected. It is necessary to compute a p-value to test the statistical significance of this difference.
+
 ```{r}
 #| label: monte-carlo-sim
 
@@ -321,7 +350,6 @@ full_count_df <- full_count_list |> as_tibble() |> t() |> as_tibble(.name_repair
 names(full_count_df) <- region_labels
 ```
 
-
 ```{r}
 #| label: test-stat-plot
 
@@ -334,8 +362,9 @@ full_count_df |> ggplot(aes(x=High)) +
   geom_vline(xintercept = obs_rez_counts$High, linetype="dashed", color='red') +
   theme_classic() +
   ggtitle("Simulated Counts of Accidents in a Population Region with Observed Value Overlay")
-
 ```
+
+The p-value is determined by calculating the proportion of simulated values from the "High" region that are greater than or equal to the observed value. The p-value is small, but does not meet the standard 0.05 threshold. However, at the 0.1 significance level, the calculated p-value would indicate that the observed count is unlikely to have occurred by chance, providing evidence to reject the null hypothesis and conclude that the spatial distribution is non-random.
 
 ```{r}
 #| label: p-value
@@ -346,6 +375,14 @@ p_val_high <- nrow(mc_df[mc_df$High >= obs_rez_counts$High,]) / nrow(mc_df)
 p_val_high
 ```
 
+### Morans I
+
+
+The calculation of Moran’s I for both reservation and non-reservation areas aims to measure the degree of spatial autocorrelation in the distribution of fatal car accidents across Montana. Moran's I is a statistic that quantifies how similar accident counts are in neighboring areas.
+
+To compute Moran's I for both reservation and non-reservation areas, a grid is created over Montana and clipped to the state boundary. Each grid cell is labeled as either "on reservation" or "off reservation" based on its intersection with reservation boundaries. The number of accidents within each grid cell is then counted, creating two distinct datasets for reservation and non-reservation areas.
+
+Spatial neighbors for each grid cell are identified using "queen" contiguity, which considers cells as neighbors if they share a boundary or a corner. This neighborhood structure is used to generate spatial weight matrices, which form the basis for Moran’s I calculations. A Moran’s I test is then conducted separately for both reservation and non-reservation grids. The resulting test statistic indicates whether accidents in these areas exhibit spatial clustering or randomness.
 
 ```{r}
 #| label: morans-i
@@ -380,15 +417,16 @@ non_rez_listw <- spdep::nb2listw(non_rez_nb)
 non_rez_moran <- spdep::moran.test(non_rez_grid$crash_count, listw = non_rez_listw)
 ```
 
-### Reservations
+**Reservations**
 ```{r}
 rez_moran$estimate[1]
 ```
-### Non-Reservations
+**Non-Reservations**
 ```{r}
 non_rez_moran$estimate[1]
 ```
 
+The Moran’s I statistic of 0.3104 for reservation, suggests moderate positive spatial autocorrelation. This means that accidents in reservation areas tend to cluster together, with neighboring grid cells having similar accident counts. For non-reservations the statistic of 0.1085 is also positive but much smaller than the value for reservations. This indicates weaker spatial clustering, suggesting that while accidents in non-reservation areas show some tendency to cluster, the spatial pattern is less pronounced compared to reservation areas. These findings suggest that fatal car accidents are more likely to cluster in reservation areas than in non-reservation areas, where the spatial pattern appears more dispersed. 
 
 ## Discussion
 
