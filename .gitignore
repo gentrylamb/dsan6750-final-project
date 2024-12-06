@@ -1,3 +1,4 @@
 *.rds
 /.quarto/
 /data
+Rplots.pdf
