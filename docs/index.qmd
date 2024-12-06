@@ -7,7 +7,7 @@ authors:
     affiliation: Georgetown University
     corresponding: true
 df-print: kable
-bibliography: GIS_Manuscript.bib
+bibliography: references.bib
 title-block-banner: "#87D7Df"
 title-block-banner-color: "black"
 format:
@@ -110,7 +110,7 @@ mt_map + rez_map
 
 The below image displays a view of the early Indian territories in Montana and what tribes existed. While it is not necessarily relevant to this study, it is important in the broader scope of understanding American Indian heritage in Montana and where they are confided to in present day. 
 
-![Tribal Areas in MT](https://en.wikipedia.org/wiki/File:Early_Indian_territories_in_Montana_by_treaty.png)
+![Tribal Areas in MT](https://upload.wikimedia.org/wikipedia/commons/1/11/Early_Indian_territories_in_Montana_by_treaty.png)
 
 Now the accident data from @nhtsa_FARS_2020_2022 is read in, again removing extraneous columns and keeping only those relevant to the analysis. Remember that data was sampled from the years 2020-2022, in which there were **594** accidents in the state of Montana. Instead of `sf` geometries, as provided in the shape files, this data is given with latitude and longitude. Fortunately, `sf` has a function (`st_as_sf`) that can easily convert these into geometries that are better suited to work with `sf`.
 
@@ -181,10 +181,10 @@ It seems like there is a lot of yellow points for areas that make up such a smal
 
 # caclualte percentage of mt that is reservation
 rez_area_prop <- sum(st_area(rez_sf)) / st_area(mt_sf)
-paste(c('Percentage of Area:',rez_area_prop))
+paste(c('Percentage of Area:', rez_area_prop))
 # calculate percentage of accidents that occur on a reservation
 rez_acc_prop <- mean(accidents_sf$reservation)
-paste(c('Percentage of Accidents:',rez_area_prop))
+paste(c('Percentage of Accidents:', rez_acc_prop))
 
 ```
 
@@ -300,7 +300,7 @@ rez_points_sf |> ggplot() +
   scale_fill_viridis_c(option="C", na.value="transparent")
 ```
 
-As a final step before simulation, the observed test statistic must be computed. The `quadratcount` function is used to calculate the number of fatal car accidents occurring within each population intensity region ("Low," "Middle," and "High") defined by the tessellation. The output is converted into a tidy data frame with the counts labeled according to their respective intensity categories. This tabular representation provides a clear summary of how accidents are distributed across regions with varying population intensities, and serve as the test statistic for the hypothesis test.
+As a final step before simulation, the observed test statistic must be computed. The `quadratcount` function is used to calculate the number of fatal car accidents occurring within each population intensity region ("Low," "Medium," and "High") defined by the tessellation. The output is converted into a tidy data frame with the counts labeled according to their respective intensity categories. This tabular representation provides a clear summary of how accidents are distributed across regions with varying population intensities, and serve as the test statistic for the hypothesis test.
 
 ```{r}
 #| label: rez-obs-counts
@@ -314,7 +314,7 @@ obs_rez_counts <- obs_rez_counts |> tibble::as_tibble_row()
 obs_rez_counts
 ```
 
-Finally, Monte Carlo simulation can utilized to assess the spatial randomness of the fatal car accidents. This is where the full population intensity function from before comes into play. First, 999 simulated point patterns are created, each of which are the same size as the observed point pattern and are drawn from the probability density of the population of all car accidents. This means that each of these point patterns are representative of the population of interest. Next, quadrat counts are computed for each of point patterns, so the result is a data frame with 999 rows and 3 columns, which represent the counts of accidents that fall within the three intensity categories. 
+Finally, Monte Carlo simulation can utilized to assess the spatial randomness of the fatal car accidents. This is where the full population intensity function from before comes into play. First, 999 simulated point patterns are created, each of which are the same size as the observed point pattern and are drawn from the probability density of the population of all car accidents. This means that each of these point patterns would represent what accidents would look like if the likelihood of an accident at a point was proportional to the population density of accidents at that point. Next, quadrat counts are computed for each of point patterns, so the result is a data frame with 999 rows and 3 columns, which represent the counts of accidents that fall within the three intensity categories. 
 
 The plot below shows the distribution of the "High" population category across all the simulations. Superimposed as a red dashed line is the observed value. In the original data, around 66 of accidents that occurred on a reservation fell within a "High" accident area. Visually, this is quite a bit higher than what occurs in the simulated data. It appears that fatal accidents on reservations is disproportionately higher than what should be expected. It is necessary to compute a p-value to test the statistical significance of this difference.
 
@@ -377,7 +377,6 @@ p_val_high
 
 ### Morans I
 
-
 The calculation of Moran’s I for both reservation and non-reservation areas aims to measure the degree of spatial autocorrelation in the distribution of fatal car accidents across Montana. Moran's I is a statistic that quantifies how similar accident counts are in neighboring areas.
 
 To compute Moran's I for both reservation and non-reservation areas, a grid is created over Montana and clipped to the state boundary. Each grid cell is labeled as either "on reservation" or "off reservation" based on its intersection with reservation boundaries. The number of accidents within each grid cell is then counted, creating two distinct datasets for reservation and non-reservation areas.
@@ -426,14 +425,49 @@ rez_moran$estimate[1]
 non_rez_moran$estimate[1]
 ```
 
-The Moran’s I statistic of 0.3104 for reservation, suggests moderate positive spatial autocorrelation. This means that accidents in reservation areas tend to cluster together, with neighboring grid cells having similar accident counts. For non-reservations the statistic of 0.1085 is also positive but much smaller than the value for reservations. This indicates weaker spatial clustering, suggesting that while accidents in non-reservation areas show some tendency to cluster, the spatial pattern is less pronounced compared to reservation areas. These findings suggest that fatal car accidents are more likely to cluster in reservation areas than in non-reservation areas, where the spatial pattern appears more dispersed. 
+The Moran’s I statistic of 0.3104 for reservations, suggests moderate positive spatial autocorrelation. This means that accidents in reservation areas tend to cluster together, with neighboring grid cells having similar accident counts. For non-reservations the statistic of 0.1085 is also positive but much smaller than the value for reservations. This indicates weaker spatial clustering, suggesting that while accidents in non-reservation areas show some tendency to cluster, the spatial pattern is less pronounced compared to reservation areas. These findings suggest that fatal car accidents are more likely to cluster in reservation areas than in non-reservation areas, where the spatial pattern appears more dispersed. 
 
 ## Discussion
 
+ By employing exploratory data analysis, hypothesis testing, and spatial autocorrelation measures, the analysis uncovered meaningful spatial patterns that warrant further interpretation. This section discusses the key findings, their implications, limitations, and directions for future research.
 
+### Key Findings
+
+This study revealed measurable spatial clustering of fatal car accidents on Montana's reservations, as evidenced by both the Monte Carlo simulation and Moran’s I statistic. The observed count of accidents in high-intensity population regions was noticeably greater than expected under the null hypothesis of spatial randomness, with a p-value close to conventional significance levels. Furthermore, Moran's I results demonstrated moderate positive spatial autocorrelation on reservations (**I = 0.3104**) compared to much weaker clustering off reservations (**I = 0.1085**). 
+
+These findings suggest that accidents on reservations are not distributed randomly but are instead influenced by underlying factors that contribute to spatial clustering. In contrast, the weaker autocorrelation in non-reservation areas indicates a more dispersed pattern, potentially reflecting differences in road infrastructure, population density, or traffic patterns.
+
+### Impllications
+
+The pronounced spatial clustering of accidents on reservations highlights the need for targeted interventions to address safety concerns in these areas. Factors such as road design, traffic enforcement, and accessibility of emergency services may contribute to the observed patterns and should be investigated further. Understanding these dynamics could inform policy and resource allocation to reduce fatal accidents on reservations. The findings here further support the analysis of @richard_retting_analysis_2021, emphasizing the need for intervention and action to relieve the disparity that exists for these populations.
+
+While the focus was on AI/AN individuals, it is evident that there is a larger problem in the state that contributes to the large number of traffic fatalities. Targeted innervations may address some of the problems for AI/AN populations, but may fall short if there is not an overall improvisation of general highway safety in Montana. The weaker clustering in non-reservation areas suggests that interventions in these regions may require broader strategies, as accidents appear less tied to specific locations. Differences between reservation and non-reservation areas underscore the importance of tailored approaches to improving road safety.
+
+### Limitations
+
+While the study provides important insights, several limitations should be noted:  
+
+1. **Data Granularity**: The analysis relied on aggregated crash counts within grid cells, which may obscure finer spatial patterns at smaller scales.  
+2. **Causal Factors**: The study did not directly account for underlying factors (e.g., road conditions, traffic volume, weather, or socioeconomic factors) that may influence accident distributions.  
+3. **Temporal Dynamics**: The analysis focused on spatial patterns without examining temporal variations, such as seasonal trends or changes over years.  
+4. **Boundary Effects**: Grid-based analyses near reservation boundaries may introduce artifacts due to the abrupt distinction between reservation and non-reservation areas.
+
+Addressing these limitations would strengthen the conclusions and provide a more comprehensive understanding of spatial accident patterns.
+
+### Future Work
+
+Future research can build upon the findings of this study by addressing the following areas:  
+
+1. **Integration of Explanatory Variables**: Incorporate road characteristics, traffic volume, demographic factors, and weather data to better understand the drivers of spatial clustering.  
+2. **Temporal Analysis**: Explore temporal patterns of accidents to identify trends over time or seasonal variations that may inform intervention strategies.
+3. **Refined Observation Window**:Use Montana's road network as the observation window for spatial analysis instead of the entire state. Since car accidents predominantly occur on or near roads, this approach would provide a more accurate representation of the underlying spatial processes.
+4. **Fine-Scale Modeling**: Calculate Moran's I with varying grid sizes to highlight any scalar dependence that exists.
+5. **Comparative Studies**: Extend the analysis to other states or regions to compare accident patterns across different reservation and non-reservation areas.  
 
 ## Conclusion
 
+This study examined the spatial distribution of fatal car accidents in Montana, focusing on differences between reservation and non-reservation areas. The findings reveal that accidents on reservations tend to cluster more tightly compared to the broader, more dispersed patterns observed off reservations. This clustering was confirmed through statistical analysis, showing stronger spatial relationships in reservation areas. These patterns suggest that unique factors, such as road conditions, infrastructure, or traffic patterns, may contribute to the increased concentration of accidents in these regions.
 
+These results highlight the need for targeted road safety measures on reservations to address the underlying causes of these clusters. Improved infrastructure, enforcement, and emergency response resources could help mitigate accident rates. While this study identifies important patterns, further research is needed to explore the specific factors driving these differences and to develop effective, regionally tailored interventions to enhance road safety for all Montana residents.
 
 ## References
