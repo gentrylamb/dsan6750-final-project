@@ -322,7 +322,7 @@ The plot below shows the distribution of the "High" population category across a
 #| label: monte-carlo-sim
 
 # function that takes a simulated ppp object and counts the number of 
-# accidents that occured in each population region
+# accidents that occurred in each population region
 compute_quadrat_counts <- function(sim_ppp) {
   sim_counts <- quadratcount(sim_ppp, tess=pop_areas) |> as.vector()
   names(sim_counts) <- region_labels
@@ -375,7 +375,7 @@ p_val_high <- nrow(mc_df[mc_df$High >= obs_rez_counts$High,]) / nrow(mc_df)
 p_val_high
 ```
 
-### Morans I
+### Moran's I
 
 The calculation of Moran’s I for both reservation and non-reservation areas aims to measure the degree of spatial autocorrelation in the distribution of fatal car accidents across Montana. Moran's I is a statistic that quantifies how similar accident counts are in neighboring areas.
 
@@ -399,7 +399,7 @@ crash_counts <- st_join(grid_sf, accidents_sf) |>
   group_by(geometry, on_rez) |>
   summarise(crash_count = n()) |>
   ungroup()
-# create seperate grids for reservation and non reservation 
+# create separate grids for reservation and non reservation 
 rez_grid <- crash_counts |> filter(on_rez==TRUE)
 non_rez_grid <- crash_counts |> filter(on_rez==FALSE)
 
@@ -437,7 +437,7 @@ This study revealed measurable spatial clustering of fatal car accidents on Mont
 
 These findings suggest that accidents on reservations are not distributed randomly but are instead influenced by underlying factors that contribute to spatial clustering. In contrast, the weaker autocorrelation in non-reservation areas indicates a more dispersed pattern, potentially reflecting differences in road infrastructure, population density, or traffic patterns.
 
-### Impllications
+### Implications
 
 The pronounced spatial clustering of accidents on reservations highlights the need for targeted interventions to address safety concerns in these areas. Factors such as road design, traffic enforcement, and accessibility of emergency services may contribute to the observed patterns and should be investigated further. Understanding these dynamics could inform policy and resource allocation to reduce fatal accidents on reservations. The findings here further support the analysis of @richard_retting_analysis_2021, emphasizing the need for intervention and action to relieve the disparity that exists for these populations.
 
@@ -445,24 +445,24 @@ While the focus was on AI/AN individuals, it is evident that there is a larger p
 
 ### Limitations
 
-While the study provides important insights, several limitations should be noted:  
+While this study provides valuable insights into the spatial distribution of fatal car accidents in Montana, several limitations should be acknowledged. First, the analysis of spatial autocorrelation using Moran’s I relied on aggregated crash counts within grid cells, which may obscure finer-scale patterns. Smaller-scale variations in accident distribution, particularly those occurring near specific road features or intersections, could be masked by this approach.
 
-1. **Data Granularity**: The analysis relied on aggregated crash counts within grid cells, which may obscure finer spatial patterns at smaller scales.  
-2. **Causal Factors**: The study did not directly account for underlying factors (e.g., road conditions, traffic volume, weather, or socioeconomic factors) that may influence accident distributions.  
-3. **Temporal Dynamics**: The analysis focused on spatial patterns without examining temporal variations, such as seasonal trends or changes over years.  
-4. **Boundary Effects**: Grid-based analyses near reservation boundaries may introduce artifacts due to the abrupt distinction between reservation and non-reservation areas.
+Second, the study did not incorporate underlying causal factors such as road conditions, traffic volume, weather, or socioeconomic characteristics. These factors likely play a significant role in shaping accident distributions, and their exclusion limits the ability to draw conclusions about the causes of observed spatial patterns. Additionally, the analysis was purely spatial and did not explore temporal dynamics. Patterns of accidents may vary over time due to seasonal trends, annual changes, or specific events, and these temporal aspects remain unexplored in this study.
 
-Addressing these limitations would strengthen the conclusions and provide a more comprehensive understanding of spatial accident patterns.
+Finally, boundary effects represent another limitation. The grid-based approach to spatial analysis, particularly near the boundaries of reservations, may introduce artifacts. The abrupt delineation between reservation and non-reservation areas could exaggerate or obscure patterns that might be more continuous in nature. Addressing these limitations in future studies would strengthen the findings and provide a more comprehensive understanding of the factors influencing spatial patterns of fatal car accidents.
 
 ### Future Work
 
-Future research can build upon the findings of this study by addressing the following areas:  
+Future research should aim to build upon the findings of this study by incorporating additional explanatory variables that may influence spatial clustering of fatal car accidents. Factors such as road characteristics, traffic volume, demographic information, and weather conditions could provide critical context for understanding the drivers of accident patterns. For instance, areas with poor road maintenance or high traffic congestion may exhibit unique clustering behaviors, and accounting for these variables would improve the robustness of the analysis.
 
-1. **Integration of Explanatory Variables**: Incorporate road characteristics, traffic volume, demographic factors, and weather data to better understand the drivers of spatial clustering.  
-2. **Temporal Analysis**: Explore temporal patterns of accidents to identify trends over time or seasonal variations that may inform intervention strategies.
-3. **Refined Observation Window**:Use Montana's road network as the observation window for spatial analysis instead of the entire state. Since car accidents predominantly occur on or near roads, this approach would provide a more accurate representation of the underlying spatial processes.
-4. **Fine-Scale Modeling**: Calculate Moran's I with varying grid sizes to highlight any scalar dependence that exists.
-5. **Comparative Studies**: Extend the analysis to other states or regions to compare accident patterns across different reservation and non-reservation areas.  
+Temporal analysis represents another avenue for extending this research. Examining trends over time or seasonal variations in accident patterns could uncover temporal dynamics that are not apparent in a purely spatial analysis. This is especially important for a state like Montana that experiences harsh winters and does not treat its roads. These and other weather conditions might contribute to seasonal spikes in accidents, which could inform the timing of targeted interventions.
+
+The observation window for spatial analysis could also be refined by focusing on Montana’s road network rather than the entire state. Since car accidents predominantly occur on or near roads, this approach would provide a more accurate representation of the underlying spatial processes. By aligning the analysis with the geographic features most relevant to the phenomena, researchers can produce more precise and actionable insights. Instead of the large, sparsely populated, convex hull of Montana used in this analysis, a webbing of the states roads would better represent the observation window of interest in this study. 
+
+Additionally, fine-scale modeling could be used to better understand the scalar dependence of clustering patterns. Calculating Moran’s I using varying grid sizes might reveal how spatial relationships change with scale, providing a deeper understanding of accident dynamics across different resolutions.
+
+Finally, comparative studies across other states or regions could offer valuable insights into how reservation and non-reservation areas differ in accident patterns on a broader scale. Such comparisons would help identify universal versus region-specific factors, enabling more generalizable conclusions about the spatial distribution of fatal car accidents. These extensions would greatly enhance the scope and applicability of this research.
+
 
 ## Conclusion
 
