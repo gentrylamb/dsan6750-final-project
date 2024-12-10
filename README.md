@@ -14,7 +14,7 @@ This project investigates the spatial distribution of fatal car accidents in Mon
 - **Visualization**: Mapping accident densities, clustering patterns, and tessellations to interpret results.  
 
 ## Findings  
-- Fatal car accidents exhibit significant spatial clustering on reservations.  
+- Fatal car accidents exhibit some spatial clustering on reservations.  
 - Off-reservation accident patterns are more dispersed, with weaker spatial clustering.  
 - The road system likely influences spatial patterns, suggesting the need for a refined observation window in future analyses.  
 
