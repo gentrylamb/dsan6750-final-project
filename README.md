@@ -1,7 +1,6 @@
 # PPOL 6805 / DSAN 6750 Final Project:
 # Spatial Analysis of Fatal Car Accidents in Montana 
 
-
 This project investigates the spatial distribution of fatal car accidents in Montana, with a focus on comparing patterns within reservation and non-reservation areas. Using spatial data science techniques, the analysis identifies clustering patterns, tests for spatial randomness, and quantifies spatial autocorrelation to uncover insights into accident distribution.  
 
 ## Key Features  
